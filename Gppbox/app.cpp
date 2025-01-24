@@ -18,6 +18,8 @@
 #include "Interp.hpp"
 #include "HotReloadShader.hpp"
 #include "app.h"
+#include "Entity.h"
+#include "InputManager.hpp"
 
 
 #define WIN32_LEAN_AND_MEAN
@@ -30,7 +32,6 @@ extern "C" {
 }
 
 using namespace std;
-using namespace sf;
 
 static HotReloadShader * bloomShader = nullptr;
 static HotReloadShader * blurShader = nullptr;
@@ -98,9 +99,7 @@ int main()
 		double dt = frameEnd - frameStart;
 		frameStart = Lib::getTimeStamp();
 
-		if (dt < 0.00000001) {
-			dt = 0.00000001;
-		}
+		if (dt < 0.00000001) dt = 0.00000001;
 
         sf::Event event;
 		while (window.pollEvent(event))//sort un evenement de la liste pour le traiter
@@ -125,6 +124,7 @@ int main()
 
 		//don't use imgui before this;
 		ImGui::SFML::Update(window, sf::seconds((float)dt));
+		ImGui::SetWindowFontScale(1.4f);
 
         g.update(dt);
 		
@@ -141,9 +141,7 @@ int main()
 			ImGui::LabelText("FPS", "%0.6f", 1.0 / dt);
 
 			static double captureMdt = 0.0;
-			if (curDts == 0) {
-				captureMdt = mdt;
-			}
+			if (curDts == 0) captureMdt = mdt;
 			ImGui::LabelText("Avg Update Time", "%0.6f", captureMdt);
 			ImGui::LabelText("Avg FPS", "%0.6f", 1.0 / captureMdt);
 		}
@@ -177,10 +175,7 @@ int main()
 		
 		ImGui::EndFrame();
 		
-		curDts++;
-		if (curDts >= dts.size()) {
-			curDts = 0;
-		}
+		if (++curDts >= dts.size()) curDts = 0;
 		dts[curDts] = dt;
     }
 

@@ -51,6 +51,18 @@
     <ClCompile Include="sys.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMap.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interp.hpp">
@@ -95,5 +107,84 @@
     <ClInclude Include="sys.hpp">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMap.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Directions.hpp">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="sfml_test.rc">
+      <Filter>Fichiers de ressources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="res\arial.ttf">
+      <Filter>Fichiers de ressources</Filter>
+    </Font>
+    <Font Include="res\MAIAN.TTF">
+      <Filter>Fichiers de ressources</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\bg.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="res\bg.vert">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="res\bloom.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="res\bloom_mobile.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="res\blur.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="res\blur_mobile.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="res\credits.ogg">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="res\simple.frag">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+    <None Include="res\simple.vert">
+      <Filter>Fichiers de ressources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bg.jpg">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
+    <Image Include="res\bg_stars.jpg">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
+    <Image Include="res\bg_stars.png">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
+    <Image Include="res\Player.png">
+      <Filter>Fichiers de ressources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\cmd.txt">
+      <Filter>Fichiers de ressources</Filter>
+    </Text>
   </ItemGroup>
 </Project>

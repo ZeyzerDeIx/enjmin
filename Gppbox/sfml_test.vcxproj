@@ -165,8 +165,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bloom.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameMap.cpp" />
     <ClCompile Include="HotReloadShader.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Lib.cpp" />
     <ClCompile Include="libs\imgui-sfml\imgui-SFML.cpp" />
     <ClCompile Include="libs\imgui\imgui.cpp" />
@@ -175,14 +178,19 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="sys.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
     <ClInclude Include="Bloom.hpp" />
     <ClInclude Include="C.hpp" />
     <ClInclude Include="Dice.hpp" />
+    <ClInclude Include="Directions.hpp" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="GameMap.hpp" />
     <ClInclude Include="HotReloadShader.hpp" />
+    <ClInclude Include="InputManager.hpp" />
     <ClInclude Include="Interp.hpp" />
     <ClInclude Include="Lib.hpp" />
     <ClInclude Include="libs\imgui-sfml\imgui-SFML.h" />
@@ -190,7 +198,36 @@
     <ClInclude Include="libs\imgui\imgui.h" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="ParticleMan.hpp" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="sys.hpp" />
+    <ClInclude Include="TextureManager.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="sfml_test.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="res\arial.ttf" />
+    <Font Include="res\MAIAN.TTF" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\bg.frag" />
+    <None Include="res\bg.vert" />
+    <None Include="res\bloom.frag" />
+    <None Include="res\bloom_mobile.frag" />
+    <None Include="res\blur.frag" />
+    <None Include="res\blur_mobile.frag" />
+    <None Include="res\credits.ogg" />
+    <None Include="res\simple.frag" />
+    <None Include="res\simple.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bg.jpg" />
+    <Image Include="res\bg_stars.jpg" />
+    <Image Include="res\bg_stars.png" />
+    <Image Include="res\Player.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\cmd.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
