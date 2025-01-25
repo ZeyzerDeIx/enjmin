@@ -66,8 +66,8 @@ int main()
 
 	Vector2i winPos;
 
-	View v = window.getDefaultView();
-	Vector2f viewCenter = v.getCenter();
+	//View v = window.getDefaultView();
+	//Vector2f viewCenter = v.getCenter();
 
 	sf::Clock timer;
 
@@ -117,8 +117,8 @@ int main()
 				destFinal->create(window.getSize().x, window.getSize().y);
 				destFinal->clear(sf::Color(0, 0, 0, 0));
 
-				v = sf::View(Vector2f(nsz.x * 0.5f, nsz.y * 0.5f), Vector2f((float)nsz.x, (float)nsz.y));
-				viewCenter = v.getCenter();
+				//v = sf::View(Vector2f(nsz.x * 0.5f, nsz.y * 0.5f), Vector2f(((float)nsz.x) * 0.25f, ((float)nsz.y) * 0.25f));
+				//viewCenter = v.getCenter();
 			}
 		}
 
@@ -128,11 +128,11 @@ int main()
 
         g.update(dt);
 		
-		if (ImGui::CollapsingHeader("View")) {
-			auto sz = v.getSize();
-			ImGui::Value("size x", sz.x);
-			ImGui::Value("size y", sz.y);
-		}
+		//if (ImGui::CollapsingHeader("View")) {
+		//	auto sz = v.getSize();
+		//	ImGui::Value("size x", sz.x);
+		//	ImGui::Value("size y", sz.y);
+		//}
 		if (ImGui::CollapsingHeader("App Stats", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
 			//double df = (Lib::getTimeStamp() - frameStart);
 
@@ -147,7 +147,7 @@ int main()
 		}
         window.clear();
 
-		window.setView(v);//keep view up to date in case we want to do something with like... you know what.
+		//window.setView(v);//keep view up to date in case we want to do something with like... you know what.
 
 		if (ImGui::CollapsingHeader("Bloom Control")) {
 			ImGui::SliderFloat("bloomWidth", &bloomWidth, 0, 55);//55 is max acceptable kernel size for constants, otherwise we should use a texture

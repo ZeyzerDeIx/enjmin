@@ -33,7 +33,8 @@ public:
     void setDirection(uint8_t direction, bool state);
 
     float getSpeed();
-    sf::Vector2f getVelocity();
+    const sf::Vector2f& getVelocity();
+	const sf::Vector2f& getPos();
 
 	bool isOnGround();
 

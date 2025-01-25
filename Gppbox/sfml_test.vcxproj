@@ -165,6 +165,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bloom.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameMap.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="Bloom.hpp" />
     <ClInclude Include="C.hpp" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Dice.hpp" />
     <ClInclude Include="Directions.hpp" />
     <ClInclude Include="Entity.h" />

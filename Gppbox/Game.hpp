@@ -14,6 +14,7 @@
 #include "GameMap.hpp"
 #include "Entity.h"
 #include "InputManager.hpp"
+#include "Camera.h"
 
 
 class HotReloadShader;
@@ -43,4 +44,5 @@ private:
 	GameMap m_gameMap;
 	std::vector<Entity> m_entities;
 	InputManager m_inputManager;
+	Camera m_camera;
 };

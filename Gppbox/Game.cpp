@@ -11,9 +11,11 @@
 
 
 
-Game::Game(sf::RenderWindow * win)
+Game::Game(sf::RenderWindow * win):
+	m_camera(win)
 {
 	this->win = win;
+	win->setKeyRepeatEnabled(false);
 	win->setVerticalSyncEnabled(true);
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
 
@@ -25,6 +27,8 @@ Game::Game(sf::RenderWindow * win)
 
 	m_entities.push_back(Entity("Player.png", &m_gameMap));
 	m_inputManager.setPlayer(&m_entities[0]);
+	m_inputManager.setCamera(&m_camera);
+	m_camera.attachEntity(&m_entities[0]);
 }
 
 void Game::processInput(sf::Event ev)
@@ -35,6 +39,7 @@ void Game::processInput(sf::Event ev)
 		closing = true;
 		return;
 	}
+	m_inputManager.handleInputs(ev);
 }
 
 
@@ -55,13 +60,12 @@ int blendModeIndex(sf::BlendMode bm)
 
 void Game::update(double dt)
 {
-
-	m_inputManager.handleInputs();
 	g_time += dt;
 	if (bgShader) bgShader->update(dt);
 
 	beforeParts.update(dt);
 	for (auto& entity : m_entities) entity.update(dt);
+	m_camera.update(dt);
 	afterParts.update(dt);
 }
 

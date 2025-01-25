@@ -39,12 +39,11 @@ void Entity::update(double dt)
         m_velocity.x += m_acceleration.x * dt;
 	if (m_velocity.x > m_maxSpeed) m_velocity.x = m_maxSpeed;
 
-	if(!isOnGround())
-        m_velocity.y += m_acceleration.y * dt;
+	if(!isOnGround()) m_velocity.y += m_acceleration.y * dt;
 	else if(!m_isJumping) m_velocity.y = 0.f;
 
-    //movement
-    float sign = m_velocity.x > 0 ? 1.f : -1.f;
+    //movement x
+    float sign = m_velocity.x >= 0 ? 1.f : -1.f;
 	for (float i = std::abs(m_velocity.x * dt); i > 0.f ; i -= CELL_SIZE)
 	{
 		updateCooAndRatio();
@@ -56,9 +55,9 @@ void Entity::update(double dt)
         }
         m_pos.x += sign * (CELL_SIZE < i ? CELL_SIZE : i);
 	}
-    
-	sign = m_velocity.y > 0 ? 1.f : -1.f;
-	if (sign == -1.f) m_isJumping = false;
+	//movement y
+	sign = m_velocity.y >= 0 ? 1.f : -1.f;
+	if (sign == 1.f) m_isJumping = false;
 	for (float i = std::abs(m_velocity.y * dt); i > 0.f; i -= CELL_SIZE)
 	{
 		updateCooAndRatio();
@@ -135,7 +134,7 @@ void Entity::setDirections(uint8_t directions)
 void Entity::setDirection(uint8_t direction, bool state)
 {
     if (state) m_directions |= direction;
-    else m_directions &= direction;
+    else m_directions ^= direction;
 }
 
 float Entity::getSpeed()
@@ -143,9 +142,14 @@ float Entity::getSpeed()
     return m_maxSpeed;
 }
 
-sf::Vector2f Entity::getVelocity()
+const sf::Vector2f& Entity::getVelocity()
 {
     return m_velocity;
+}
+
+const sf::Vector2f& Entity::getPos()
+{
+	return m_pos;
 }
 
 bool Entity::isOnGround()
@@ -166,10 +170,12 @@ bool Entity::im()
     bool posChanged = false;
     posChanged |= DragFloat2("Pos", &m_pos.x, 1.0f, -2000.f, 2000.f);
 
-    Value("UP",    (bool)(m_directions & Direction::UP));
-    Value("DOWN",  (bool)(m_directions & Direction::DOWN));
-    Value("LEFT",  (bool)(m_directions & Direction::LEFT));
-    Value("RIGTH", (bool)(m_directions & Direction::RIGHT));
+    Value("UP",       (bool)(m_directions & Direction::UP));
+    Value("DOWN",     (bool)(m_directions & Direction::DOWN));
+    Value("LEFT",     (bool)(m_directions & Direction::LEFT));
+    Value("RIGTH",    (bool)(m_directions & Direction::RIGHT));
+	Value("JUMP",     (bool)m_isJumping);
+	Value("OnGround", isOnGround());
 
     if (posChanged) updateCooAndRatio();
 
