@@ -1,11 +1,17 @@
 #include "InputManager.hpp"
 #include "SFML/Graphics.hpp"
+#include <iostream>
 
-InputManager::InputManager() : m_player(nullptr), m_camera(nullptr) {}
+InputManager::InputManager() :
+	m_player(nullptr),
+	m_camera(nullptr),
+	m_gameMap(nullptr)
+{}
 
-InputManager::InputManager(Entity* player, Camera* camera):
+InputManager::InputManager(Entity* player, Camera* camera, GameMap* gameMap):
 	m_player(player),
-	m_camera(camera)
+	m_camera(camera),
+	m_gameMap(gameMap)
 {}
 
 void InputManager::setPlayer(Entity* player)
@@ -18,12 +24,21 @@ void InputManager::setCamera(Camera* camera)
 	m_camera = camera;
 }
 
+void InputManager::setGameMap(GameMap* gameMap)
+{
+	m_gameMap = gameMap;
+}
+
 void InputManager::handleInputs(sf::Event event)
 {
 	if (event.type == sf::Event::KeyPressed)
         m_camera->getFreeCam() ? processKeyPressedFreeCam(event.key.code) : processKeyPressed(event.key.code);
 	else if (event.type == sf::Event::KeyReleased)
 		m_camera->getFreeCam() ? processKeyReleasedFreeCam(event.key.code) : processKeyReleased(event.key.code);
+	else if(event.type == sf::Event::MouseButtonPressed and m_camera->getFreeCam())
+		event.mouseButton.button == sf::Mouse::Button::Left ?
+			m_gameMap->addCell(Cell::create(CellType::Wall, m_camera->getMouseMapCoo())) :
+			m_gameMap->removeCell(m_camera->getMouseMapCoo());
 }
 
 void InputManager::processKeyPressed(sf::Keyboard::Key key)
@@ -38,6 +53,9 @@ void InputManager::processKeyPressed(sf::Keyboard::Key key)
             break;
 		case sf::Keyboard::Space:
 			m_player->jump();
+			break;
+		case sf::Keyboard::LControl:
+			m_camera->enableFreeCam(true);
 			break;
         default:
             break;
@@ -59,6 +77,9 @@ void InputManager::processKeyPressedFreeCam(sf::Keyboard::Key key)
 		break;
 	case sf::Keyboard::D:
 		m_camera->setDirection(Direction::RIGHT, true);
+		break;
+	case sf::Keyboard::LControl:
+		m_camera->enableFreeCam(false);
 		break;
 	default:
 		break;

@@ -1,4 +1,5 @@
 #include "GameMap.hpp"
+#include <iostream>
 
 static int cols = 1280 / CELL_SIZE;
 static int lastLine = 720 / CELL_SIZE - 1;
@@ -6,32 +7,21 @@ static int lastLine = 720 / CELL_SIZE - 1;
 GameMap::GameMap()
 {
 	for (int i = 0; i < 1280 / C::GRID_SIZE; ++i)
-		m_cells.push_back({ CellType::Wall, sf::Vector2i(i, lastLine) });
+		addCell(Cell::create(CellType::Wall, sf::Vector2i(i, lastLine)));
 
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(0, lastLine - 1)});
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(0, lastLine - 2)});
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(0, lastLine - 3)});
+	addCell(Cell::create(CellType::Wall, sf::Vector2i(0, lastLine - 1)));
+	addCell(Cell::create(CellType::Wall, sf::Vector2i(0, lastLine - 2)));
+	addCell(Cell::create(CellType::Wall,
+		sf::Vector2i(0, lastLine - 3)));
 
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(cols - 1, lastLine - 1)});
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(cols - 1, lastLine - 2)});
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(cols - 1, lastLine - 3)});
+	addCell(Cell::create(CellType::Wall, sf::Vector2i(cols - 1, lastLine - 1)));
+	addCell(Cell::create(CellType::Wall, sf::Vector2i(cols - 1, lastLine - 2)));
+	addCell(Cell::create(CellType::Wall, sf::Vector2i(cols - 1, lastLine - 3)));
 
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(cols >> 2, lastLine - 2)});
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(cols >> 2, lastLine - 3)});
-	m_cells.push_back({ CellType::Wall, sf::Vector2i(cols >> 2, lastLine - 4)});
-	m_cells.push_back({ CellType::Wall, sf::Vector2i((cols >> 2) + 1, lastLine - 4) });
-
-	wallSprites.clear();
-	for (Cell& cell : m_cells)
-	{
-		if (cell.type == CellType::Wall)
-		{
-			sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
-			rect.setPosition(cell.coo.x * CELL_SIZE, cell.coo.y * CELL_SIZE);
-			rect.setFillColor(sf::Color(0x07ff07ff));
-			wallSprites.push_back(rect);
-		}
-	}
+	addCell(Cell::create(CellType::Wall, sf::Vector2i(cols >> 2, lastLine - 2)));
+	addCell(Cell::create(CellType::Wall, sf::Vector2i(cols >> 2, lastLine - 3)));
+	addCell(Cell::create(CellType::Wall, sf::Vector2i(cols >> 2, lastLine - 4)));
+	addCell(Cell::create(CellType::Wall, sf::Vector2i((cols >> 2) + 1, lastLine - 4) ));
 }
 
 const std::vector<Cell>& GameMap::getCells()
@@ -54,6 +44,19 @@ bool GameMap::hasCollision(int x, int y)
 
 void GameMap::draw(sf::RenderWindow& win)
 {
-	for (auto& wall : wallSprites)
-		win.draw(wall);
+	for (Cell& cell : m_cells)
+		win.draw(cell.sprite);
+}
+
+void GameMap::addCell(Cell cell)
+{
+	for (Cell& c : m_cells) if (c.coo == cell.coo) return;
+
+	m_cells.push_back(cell);
+}
+
+void GameMap::removeCell(sf::Vector2i coo)
+{
+	for (auto it = m_cells.begin(); it != m_cells.end(); ++it)
+		if (it->coo == coo) { m_cells.erase(it); break; }
 }

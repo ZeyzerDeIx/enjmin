@@ -47,12 +47,6 @@ int main()
     //sf::RenderWindow window(sf::VideoMode(800, 600,32), "SFML works!");
     sf::RenderWindow window(sf::VideoMode(1280, 720,32), "SFML works!");
 	window.setVerticalSyncEnabled(false);
-    Font font;
-
-    if (!font.loadFromFile("res/MAIAN.TTF")) {
-        cout << "ERROR NO FONT" << endl;
-        return 1;
-    }
 
 	if (!sf::Shader::isAvailable())
 	{
@@ -70,10 +64,6 @@ int main()
 	//Vector2f viewCenter = v.getCenter();
 
 	sf::Clock timer;
-
-	sf::Text fpsCounter;
-	fpsCounter.setFont(font);
-	fpsCounter.setString("FPS:");
 
 	double frameStart = 0.0;
 	double frameEnd = 0.0;
@@ -157,13 +147,11 @@ int main()
 
         g.draw(window);
 
-		window.draw(fpsCounter);
+		//if (blurShader) blurShader->update(dt);
+		//if (bloomShader) bloomShader->update(dt);
 
-		if (blurShader) blurShader->update(dt);
-		if (bloomShader) bloomShader->update(dt);
-
-		if (bloomWidth)
-			Bloom::render(window,winTex,destX,destFinal,&blurShader->sh,&bloomShader->sh, bloomWidth, bloomMul);
+		//if (bloomWidth)
+			//Bloom::render(window,winTex,destX,destFinal,&blurShader->sh,&bloomShader->sh, bloomWidth, bloomMul);
 
 		ImGui::SFML::Render(window);
         window.display();
@@ -171,7 +159,6 @@ int main()
 
 		frameEnd = Lib::getTimeStamp();
 		
-		fpsCounter.setString("FPS: "+std::to_string(1.0 / dt));
 		
 		ImGui::EndFrame();
 		

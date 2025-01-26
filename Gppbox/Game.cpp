@@ -23,12 +23,23 @@ Game::Game(sf::RenderWindow * win):
 	bg.setTexture(&texture);
 	bg.setSize(sf::Vector2f(1280, 720));
 
-	bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
+	//bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 
 	m_entities.push_back(Entity("Player.png", &m_gameMap));
 	m_inputManager.setPlayer(&m_entities[0]);
 	m_inputManager.setCamera(&m_camera);
+	m_inputManager.setGameMap(&m_gameMap);
 	m_camera.attachEntity(&m_entities[0]);
+
+	if (!m_font.loadFromFile("res/MAIAN.TTF")) {
+		cout << "ERROR NO FONT" << endl;
+		exit(1);
+	}
+	m_fpsCounter.setFont(m_font);
+	m_fpsCounter.setString("FPS:");
+
+	m_lastFPSUpdateElapsedTime = 0.0;
+	m_lastFPSUpdateElpasedFrame = 0;
 }
 
 void Game::processInput(sf::Event ev)
@@ -61,37 +72,47 @@ int blendModeIndex(sf::BlendMode bm)
 void Game::update(double dt)
 {
 	g_time += dt;
-	if (bgShader) bgShader->update(dt);
+	m_lastFPSUpdateElpasedFrame++;
+	//if (bgShader) bgShader->update(dt);
 
-	beforeParts.update(dt);
+	//beforeParts.update(dt);
 	for (auto& entity : m_entities) entity.update(dt);
 	m_camera.update(dt);
-	afterParts.update(dt);
+	//afterParts.update(dt);
+
+	if ((m_lastFPSUpdateElapsedTime += dt) > 0.25)
+	{
+		m_fpsCounter.setString("FPS: " + std::to_string((int)(m_lastFPSUpdateElpasedFrame / m_lastFPSUpdateElapsedTime)));
+		m_lastFPSUpdateElapsedTime = 0.0;
+		m_lastFPSUpdateElpasedFrame = 0;
+	}
 }
 
  void Game::draw(sf::RenderWindow & win)
  {
 	if (closing) return;
 
-	sf::RenderStates states = sf::RenderStates::Default;
+	/*sf::RenderStates states = sf::RenderStates::Default;
 	sf::Shader * sh = &bgShader->sh;
 	states.blendMode = sf::BlendAdd;
 	states.shader = sh;
 	auto& tex = TextureManager::getTexture("bg_stars.png");
 	states.texture = &tex;
-	sh->setUniform("texture", tex);
+	sh->setUniform("texture", tex);*/
 	//sh->setUniform("time", g_time);
-	win.draw(bg, states);
+	m_camera.enableAbsolute(true);
+	win.draw(bg/*, states*/);
+	win.draw(m_fpsCounter);
+	m_camera.enableAbsolute(false);
 
-	beforeParts.draw(win);
+	//beforeParts.draw(win);
 
 	m_gameMap.draw(win);
-
 
 	for (auto& entity : m_entities) entity.draw(win);
 	m_entities[0].im();
 
-	afterParts.draw(win);
+	//afterParts.draw(win);
 }
 
 void Game::im()

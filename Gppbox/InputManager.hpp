@@ -6,9 +6,10 @@ class InputManager
 {
 public:
 	InputManager();
-	InputManager(Entity* player, Camera* camera);
+	InputManager(Entity* player, Camera* camera, GameMap* gameMap);
 	void setPlayer(Entity* player);
 	void setCamera(Camera* camera);
+	void setGameMap(GameMap* gameMap);
 	void handleInputs(sf::Event event);
 
 	void processKeyPressed(sf::Keyboard::Key key);
@@ -20,5 +21,6 @@ public:
 private:
 	Entity* m_player;
 	Camera* m_camera;
+	GameMap* m_gameMap;
 };
 

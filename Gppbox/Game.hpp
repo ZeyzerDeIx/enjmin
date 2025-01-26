@@ -45,4 +45,8 @@ private:
 	std::vector<Entity> m_entities;
 	InputManager m_inputManager;
 	Camera m_camera;
+	sf::Font m_font;
+	sf::Text m_fpsCounter;
+	double m_lastFPSUpdateElapsedTime;
+	int m_lastFPSUpdateElpasedFrame;
 };

@@ -13,10 +13,10 @@
 class Entity
 {
 public:
-    //@brief Constructs a new Entity with default values.
+    //Constructs a new Entity with default values.
     Entity(std::string spritePath = "", GameMap* gameMap = nullptr);
 
-    //@brief Updates the entity's position based on its movement vector.
+    //Updates the entity's position based on its movement vector.
     void update(double dt);
 	void draw(sf::RenderWindow& win);
     void jump();
@@ -36,6 +36,10 @@ public:
     const sf::Vector2f& getVelocity();
 	const sf::Vector2f& getPos();
 
+	/**
+	 * @brief Checks if the entity is on the ground.
+	 * @return True if the entity is on the ground, false otherwise.
+	 */
 	bool isOnGround();
 
     bool im();

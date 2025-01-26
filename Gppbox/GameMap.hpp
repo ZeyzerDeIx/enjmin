@@ -5,6 +5,7 @@
 #include "C.hpp"
 
 constexpr int CELL_SIZE = 32;
+constexpr int WALL_COLOR = 0x07ff07ff;
 
 /**
  * @class CellType
@@ -24,6 +25,19 @@ struct Cell
 {
 	CellType type;
 	sf::Vector2i coo;
+	sf::RectangleShape sprite;
+
+	static Cell create(CellType type, sf::Vector2i coo)
+	{
+		Cell cell;
+		cell.type = type;
+		cell.coo = coo;
+		cell.sprite.setSize(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+		cell.sprite.setPosition(coo.x * CELL_SIZE, coo.y * CELL_SIZE);
+		if(type == CellType::Wall)
+			cell.sprite.setFillColor(sf::Color(WALL_COLOR));
+		return cell;
+	}
 };
 
 /**
@@ -51,9 +65,11 @@ public:
 
 	void draw(sf::RenderWindow& win);
 
+	void addCell(Cell cell);
+	void removeCell(sf::Vector2i coo);
+
 private:
 	std::vector<Cell> m_cells;
-
 	std::vector<sf::RectangleShape> wallSprites;
 };
 
