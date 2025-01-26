@@ -110,13 +110,13 @@ void Game::update(double dt)
 	m_gameMap.draw(win);
 
 	for (auto& entity : m_entities) entity.draw(win);
-	m_entities[0].im();
 
 	//afterParts.draw(win);
 }
 
 void Game::im()
 {
-	
+	m_inputManager.im();
+	m_entities[0].im();
 }
 

@@ -1,3 +1,4 @@
+#include <imgui.h>
 #include "InputManager.hpp"
 #include "SFML/Graphics.hpp"
 #include <iostream>
@@ -5,13 +6,19 @@
 InputManager::InputManager() :
 	m_player(nullptr),
 	m_camera(nullptr),
-	m_gameMap(nullptr)
+	m_gameMap(nullptr),
+	m_ctrl(false),
+	m_leftClick(false),
+	m_rightClick(false)
 {}
 
 InputManager::InputManager(Entity* player, Camera* camera, GameMap* gameMap):
 	m_player(player),
 	m_camera(camera),
-	m_gameMap(gameMap)
+	m_gameMap(gameMap),
+	m_ctrl(false),
+	m_leftClick(false),
+	m_rightClick(false)
 {}
 
 void InputManager::setPlayer(Entity* player)
@@ -32,92 +39,87 @@ void InputManager::setGameMap(GameMap* gameMap)
 void InputManager::handleInputs(sf::Event event)
 {
 	if (event.type == sf::Event::KeyPressed)
-        m_camera->getFreeCam() ? processKeyPressedFreeCam(event.key.code) : processKeyPressed(event.key.code);
+		processKeyPressed(event.key.code);
 	else if (event.type == sf::Event::KeyReleased)
-		m_camera->getFreeCam() ? processKeyReleasedFreeCam(event.key.code) : processKeyReleased(event.key.code);
-	else if(event.type == sf::Event::MouseButtonPressed and m_camera->getFreeCam())
-		event.mouseButton.button == sf::Mouse::Button::Left ?
-			m_gameMap->addCell(Cell::create(CellType::Wall, m_camera->getMouseMapCoo())) :
-			m_gameMap->removeCell(m_camera->getMouseMapCoo());
+		processKeyReleased(event.key.code);
+	else if (event.type == sf::Event::MouseButtonPressed or
+			event.type == sf::Event::MouseButtonReleased)
+	{
+		m_leftClick = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+		m_rightClick = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+	}
+
+	if (m_leftClick and m_camera->getFreeCam())
+		m_gameMap->addCell(Cell::create(CellType::Wall, m_camera->getMouseMapCoo()));
+	else if (m_rightClick and m_camera->getFreeCam())
+		m_gameMap->removeCell(m_camera->getMouseMapCoo());
 }
 
 void InputManager::processKeyPressed(sf::Keyboard::Key key)
 {
+	bool freeCam = m_camera->getFreeCam();
     switch (key)
     {
+		case sf::Keyboard::Z:
+			if (freeCam) m_camera->setDirection(Direction::UP, true);
+			break;
+		case sf::Keyboard::S:
+			if (m_ctrl) m_gameMap->saveMap();
+			else if (freeCam) m_camera->setDirection(Direction::DOWN, true);
+			break;
         case sf::Keyboard::Q:
-            m_player->setDirection(Direction::LEFT, true);
+			if (freeCam) m_camera->setDirection(Direction::LEFT, true);
+			else m_player->setDirection(Direction::LEFT, true);
             break;
         case sf::Keyboard::D:
-            m_player->setDirection(Direction::RIGHT, true);
+            if (freeCam) m_camera->setDirection(Direction::RIGHT, true);
+			else m_player->setDirection(Direction::RIGHT, true);
             break;
+		case sf::Keyboard::E:
+			if (m_ctrl) m_camera->enableFreeCam(!freeCam);
+			break;
 		case sf::Keyboard::Space:
-			m_player->jump();
+			if (!freeCam) m_player->jump();
 			break;
 		case sf::Keyboard::LControl:
-			m_camera->enableFreeCam(true);
+			m_ctrl = true;
 			break;
         default:
             break;
     }
 }
 
-void InputManager::processKeyPressedFreeCam(sf::Keyboard::Key key)
-{
-	switch (key)
-	{
-	case sf::Keyboard::Z:
-		m_camera->setDirection(Direction::UP, true);
-		break;
-	case sf::Keyboard::S:
-		m_camera->setDirection(Direction::DOWN, true);
-		break;
-	case sf::Keyboard::Q:
-		m_camera->setDirection(Direction::LEFT, true);
-		break;
-	case sf::Keyboard::D:
-		m_camera->setDirection(Direction::RIGHT, true);
-		break;
-	case sf::Keyboard::LControl:
-		m_camera->enableFreeCam(false);
-		break;
-	default:
-		break;
-	}
-}
-
 void InputManager::processKeyReleased(sf::Keyboard::Key key)
 {
+	bool freeCam = m_camera->getFreeCam();
 	switch (key)
 	{
-	case sf::Keyboard::Q:
-		m_player->setDirection(Direction::LEFT, false);
-		break;
-	case sf::Keyboard::D:
-		m_player->setDirection(Direction::RIGHT, false);
-		break;
-	default:
-		break;
+		case sf::Keyboard::Z:
+			if(freeCam) m_camera->setDirection(Direction::UP, false);
+			break;
+		case sf::Keyboard::S:
+			if(!m_ctrl and freeCam) m_camera->setDirection(Direction::DOWN, false);
+			break;
+		case sf::Keyboard::Q:
+			if(freeCam) m_camera->setDirection(Direction::LEFT, false);
+			else m_player->setDirection(Direction::LEFT, false);
+			break;
+		case sf::Keyboard::D:
+			if(freeCam) m_camera->setDirection(Direction::RIGHT, false);
+			else m_player->setDirection(Direction::RIGHT, false);
+			break;
+		case sf::Keyboard::LControl:
+			m_ctrl = false;
+			break;
+		default:
+			break;
 	}
 }
 
-void InputManager::processKeyReleasedFreeCam(sf::Keyboard::Key key)
+void InputManager::im()
 {
-	switch (key)
-	{
-	case sf::Keyboard::Z:
-		m_camera->setDirection(Direction::UP, false);
-		break;
-	case sf::Keyboard::S:
-		m_camera->setDirection(Direction::DOWN, false);
-		break;
-	case sf::Keyboard::Q:
-		m_camera->setDirection(Direction::LEFT, false);
-		break;
-	case sf::Keyboard::D:
-		m_camera->setDirection(Direction::RIGHT, false);
-		break;
-	default:
-		break;
-	}
+	using namespace ImGui;
+	Value("Ctrl", m_ctrl);
+	Value("Left Click", m_leftClick);
+	Value("Right Click", m_rightClick);
 }

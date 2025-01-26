@@ -68,6 +68,9 @@ public:
 	void addCell(Cell cell);
 	void removeCell(sf::Vector2i coo);
 
+	void loadMap();
+	void saveMap();
+
 private:
 	std::vector<Cell> m_cells;
 	std::vector<sf::RectangleShape> wallSprites;
