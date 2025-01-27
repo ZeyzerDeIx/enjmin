@@ -10,7 +10,7 @@ Entity::Entity(std::string spritePath, GameMap* gameMap) :
         sf::Sprite(TextureManager::getTexture(spritePath))
     ),
     m_gameMap(gameMap),
-    m_coo(19, 19),
+    m_coo(0, 0),
     m_ratio(0.f, 0.f),
     m_pos(0, 0),
     m_velocity(0.f, 0.f),
@@ -57,7 +57,7 @@ void Entity::update(double dt)
 	}
 	//movement y
 	sign = m_velocity.y >= 0 ? 1.f : -1.f;
-	if (sign == 1.f) m_isJumping = false;
+	if (m_isJumping and sign == 1.f) m_isJumping = false;
 	for (float i = std::abs(m_velocity.y * dt); i > 0.f; i -= CELL_SIZE)
 	{
 		updateCooAndRatio();
@@ -160,26 +160,33 @@ bool Entity::isOnGround()
 bool Entity::im()
 {
     using namespace ImGui;
+    bool cooChanged = false, posChanged = false;
 
-    bool cooChanged = false;
-    cooChanged |= DragInt2("Coo", &m_coo.x, 0.5f, 0, 60);
-    cooChanged |= DragFloat2("Ratio", &m_ratio.x, 0.0f, 0, 1.0f);
+    if(CollapsingHeader("Player"))
+    {
+        cooChanged |= DragInt2("Coo", &m_coo.x, 1, -100, 100);
+        cooChanged |= DragFloat2("Ratio", &m_ratio.x, 0.0f, 0, 1.0f);
 
-    if (cooChanged) updatePos();
+        if (cooChanged) updatePos();
 
-    bool posChanged = false;
-    posChanged |= DragFloat2("Pos", &m_pos.x, 1.0f, -2000.f, 2000.f);
+        posChanged |= DragFloat2("Pos", &m_pos.x, 1.0f, -2000.f, 2000.f);
 
-    Value("UP",       (bool)(m_directions & Direction::UP));
-    Value("DOWN",     (bool)(m_directions & Direction::DOWN));
-    Value("LEFT",     (bool)(m_directions & Direction::LEFT));
-    Value("RIGTH",    (bool)(m_directions & Direction::RIGHT));
-	Value("JUMP",     (bool)m_isJumping);
-	Value("OnGround", isOnGround());
+        std::string dir = "Directions: ";
+        if (m_directions & Direction::UP) dir += "UP ";
+        if (m_directions & Direction::DOWN) dir += "DOWN ";
+        if (m_directions & Direction::LEFT) dir += "LEFT ";
+        if (m_directions & Direction::RIGHT) dir += "RIGHT ";
+        Text(dir.c_str());
 
-    if (posChanged) updateCooAndRatio();
+		std::string states = "States: ";
+		if (m_isJumping) states += "JUMP ";
+		if (isOnGround()) states += "OnGround ";
+		Text(states.c_str());
 
-    DragFloat2("Velocity", &m_velocity.x, 5.f, -m_maxSpeed, m_maxSpeed);
+        if (posChanged) updateCooAndRatio();
+
+        DragFloat2("Velocity", &m_velocity.x, 5.f, -m_maxSpeed, m_maxSpeed);
+    }
 
     return cooChanged || posChanged;
 }
@@ -189,16 +196,28 @@ bool Entity::im()
 
 void Entity::updatePos()
 {
-    setPos((m_coo.x + m_ratio.x) * CELL_SIZE, (m_coo.y + m_ratio.y) * CELL_SIZE);
+	sf::Vector2f signs{ m_pos.x < 0 ? -1.f : 1.f, m_pos.y < 0 ? -1.f : 1.f };
+    setPos(
+        ((float)(m_coo.x + (m_coo.x < 0)) + (m_coo.x < 0 ? - 1.f + m_ratio.x : m_ratio.x)) * CELL_SIZE,
+		((float)(m_coo.y + (m_coo.y < 0)) + (m_coo.y < 0 ? - 1.f + m_ratio.y : m_ratio.y)) * CELL_SIZE
+    );
 }
 
 void Entity::updateCooAndRatio()
 {
-    m_coo = { (int)m_pos.x / CELL_SIZE, (int)m_pos.y / CELL_SIZE };
-    m_ratio = {
-        ((float)((int)m_pos.x % CELL_SIZE) / (float)CELL_SIZE),
-        ((float)((int)m_pos.y % CELL_SIZE) / (float)CELL_SIZE)
+    sf::Vector2f absPos{std::abs(m_pos.x), std::abs(m_pos.y)};
+	sf::Vector2i signs{ m_pos.x < 0 ? -1 : 1, m_pos.y < 0 ? -1 : 1 };
+    m_coo = {
+        ((int)m_pos.x / CELL_SIZE) - (m_pos.x < 0),
+        ((int)m_pos.y / CELL_SIZE) - (m_pos.y < 0)
     };
+    m_ratio = {
+        ((float)((int)(m_pos.x - (m_pos.x < 0)* CELL_SIZE) % CELL_SIZE) / (float)CELL_SIZE),
+        ((float)((int)(m_pos.y - (m_pos.y < 0)* CELL_SIZE) % CELL_SIZE) / (float)CELL_SIZE)
+    };
+
+    if (m_pos.x < 0) m_ratio.x = 1.f + m_ratio.x;
+    if (m_pos.y < 0) m_ratio.y = 1.f + m_ratio.y;
 }
 
 void Entity::updateSprite()

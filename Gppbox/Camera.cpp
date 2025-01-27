@@ -2,6 +2,8 @@
 
 #include "Entity.h"
 
+#include <imgui.h>
+
 Camera::Camera(sf::RenderWindow* window) :
 	m_window(window),
 	m_entity(nullptr),
@@ -38,6 +40,33 @@ void Camera::attachEntity(Entity* entity)
 	m_window->setView(m_view);
 }
 
+void Camera::im()
+{
+	using namespace ImGui;
+
+	if(CollapsingHeader("Camera"))
+	{
+		Checkbox("Free cam", &m_freeCam);
+		if (m_freeCam)
+		{
+			DragFloat("Speed", &m_freeCamSpeed, 10.f, 10.f, 1000.f);
+
+			std::string dir = "Directions: ";
+			if (m_directions & Direction::UP) dir += "UP ";
+			if (m_directions & Direction::DOWN) dir += "DOWN ";
+			if (m_directions & Direction::LEFT) dir += "LEFT ";
+			if (m_directions & Direction::RIGHT) dir += "RIGHT ";
+			Text(dir.c_str());
+		}
+	}
+
+	if (CollapsingHeader("Mouse"))
+	{
+		sf::Vector2i mouseCoo = getMouseMapCoo();
+		Text("Mouse Map Coordinates: (%d, %d)", mouseCoo.x, mouseCoo.y);
+	}
+}
+
 void Camera::enableFreeCam(bool enable) { m_freeCam = enable; }
 bool Camera::getFreeCam() const { return m_freeCam; }
 
@@ -45,7 +74,11 @@ sf::Vector2i Camera::getMouseMapCoo() const
 {
 	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_window);
 	sf::Vector2f worldPos = m_window->mapPixelToCoords(mousePos, m_view);
-	return sf::Vector2i((int)worldPos.x / CELL_SIZE, (int)worldPos.y / CELL_SIZE);
+	//here the minus one is required because the division is floored
+	return {
+		((int)worldPos.x / CELL_SIZE) - (worldPos.x < 0),
+		((int)worldPos.y / CELL_SIZE) - (worldPos.y < 0)
+	};
 }
 
 void Camera::move(float offsetX, float offsetY)

@@ -49,6 +49,8 @@ void InputManager::handleInputs(sf::Event event)
 		m_rightClick = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
 	}
 
+	if (ImGui::IsAnyItemHovered() || ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+		return;
 	if (m_leftClick and m_camera->getFreeCam())
 		m_gameMap->addCell(Cell::create(CellType::Wall, m_camera->getMouseMapCoo()));
 	else if (m_rightClick and m_camera->getFreeCam())

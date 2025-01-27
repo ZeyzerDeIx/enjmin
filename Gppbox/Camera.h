@@ -8,6 +8,9 @@ public:
 	Camera(sf::RenderWindow * window);
 	void update(double dt);
 	void attachEntity(Entity* entity);
+	void im();
+
+
 	void enableFreeCam(bool enable);
 
 	bool getFreeCam() const;

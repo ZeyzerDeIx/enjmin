@@ -118,5 +118,6 @@ void Game::im()
 {
 	m_inputManager.im();
 	m_entities[0].im();
+	m_camera.im();
 }
 

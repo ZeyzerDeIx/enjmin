@@ -2,9 +2,6 @@
 #include <iostream>
 #include <fstream>
 
-static int cols = 1280 / CELL_SIZE;
-static int lastLine = 720 / CELL_SIZE - 1;
-
 GameMap::GameMap()
 {
 	loadMap();
