@@ -6,8 +6,6 @@
 #include <stdexcept>
 #include <iostream>
 
-using namespace std;
-
 /**
  * @class TextureManager
  * @brief A utility class to manage textures, with a static cache.
@@ -15,7 +13,8 @@ using namespace std;
  * The TextureManager class provides static access to textures in a global cache.
  * Textures are loaded from files the first time they are requested and cached for later use.
  */
-class TextureManager {
+class TextureManager
+{
 public:
     /**
      * @brief Retrieve a texture, loading it if it hasn't been loaded yet.
@@ -28,30 +27,11 @@ public:
      * @return A reference to the loaded texture.
      * @throws std::runtime_error If the texture cannot be loaded from the specified file path.
      */
-    static sf::Texture& getTexture(const std::string& filePath)
-    {
-        const std::string realFilePath("res/" + filePath);
-
-        // Search for the texture in the cache
-        if (textures.find(realFilePath) == textures.end()) loadTexture(realFilePath);
-
-        // Return the cached texture
-        return textures[realFilePath];
-    }
+    sf::Texture& getTexture(const std::string& filePath);
 
 private:
-    // Private constructor to prevent instantiation since this is a static class
-    TextureManager() = default;
+    // Cache of textures, indexed by file path
+    std::map<std::string, sf::Texture> m_textures;
 
-    // Static member to store the textures
-    static std::map<std::string, sf::Texture> textures; ///< Cache of textures, indexed by file path
-
-    static void loadTexture(const std::string& realFilePath)
-    {
-        sf::Texture texture;
-        if (!texture.loadFromFile(realFilePath))
-            throw std::runtime_error("Failed to load texture: " + realFilePath);
-        cout << "Texture loaded successfully: " + realFilePath << endl;
-        textures[realFilePath] = std::move(texture);
-    }
+    void loadTexture(const std::string& realFilePath);
 };

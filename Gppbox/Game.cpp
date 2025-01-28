@@ -7,7 +7,6 @@
 #include "Game.hpp"
 
 #include "HotReloadShader.hpp"
-#include "TextureManager.hpp"
 
 
 
@@ -19,17 +18,17 @@ Game::Game(sf::RenderWindow * win):
 	win->setVerticalSyncEnabled(true);
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
 
-	sf::Texture& texture = TextureManager::getTexture("bg_stars.png");
+	sf::Texture& texture = m_textureManager.getTexture("bg_stars.png");
 	bg.setTexture(&texture);
 	bg.setSize(sf::Vector2f(1280, 720));
 
 	//bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 
-	m_entities.push_back(Entity("Player.png", &m_gameMap));
-	m_inputManager.setPlayer(&m_entities[0]);
+	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color::Blue));
+	m_inputManager.setPlayer(m_entities[0]);
 	m_inputManager.setCamera(&m_camera);
 	m_inputManager.setGameMap(&m_gameMap);
-	m_camera.attachEntity(&m_entities[0]);
+	m_camera.attachEntity(m_entities[0]);
 
 	if (!m_font.loadFromFile("res/MAIAN.TTF")) {
 		cout << "ERROR NO FONT" << endl;
@@ -40,6 +39,14 @@ Game::Game(sf::RenderWindow * win):
 
 	m_lastFPSUpdateElapsedTime = 0.0;
 	m_lastFPSUpdateElpasedFrame = 0;
+
+	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap));
+}
+
+Game::~Game()
+{
+	for (Entity* entityPtr : m_entities)
+		delete entityPtr;
 }
 
 void Game::processInput(sf::Event ev)
@@ -76,7 +83,7 @@ void Game::update(double dt)
 	//if (bgShader) bgShader->update(dt);
 
 	//beforeParts.update(dt);
-	for (auto& entity : m_entities) entity.update(dt);
+	for (auto& entity : m_entities) entity->update(dt);
 	m_camera.update(dt);
 
 	m_inputManager.handleJoystick(); //must be in update to not depend on events
@@ -111,7 +118,7 @@ void Game::update(double dt)
 
 	m_gameMap.draw(win);
 
-	for (auto& entity : m_entities) entity.draw(win);
+	for (auto& entity : m_entities) entity->draw(win);
 
 	//afterParts.draw(win);
 }
@@ -119,7 +126,12 @@ void Game::update(double dt)
 void Game::im()
 {
 	m_inputManager.im();
-	m_entities[0].im();
+	m_entities[0]->im();
 	m_camera.im();
+}
+
+sf::Sprite Game::createSprite(std::string spritePath)
+{
+	return sf::Sprite(m_textureManager.getTexture(spritePath));
 }
 

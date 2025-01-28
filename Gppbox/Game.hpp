@@ -15,6 +15,7 @@
 #include "Entity.h"
 #include "InputManager.hpp"
 #include "Camera.h"
+#include "TextureManager.hpp"
 
 
 class HotReloadShader;
@@ -32,6 +33,7 @@ public:
 	ParticleMan afterParts;
 
 	Game(sf::RenderWindow * win);
+	~Game();
 
 	void processInput(sf::Event ev);
 
@@ -42,11 +44,14 @@ public:
 
 private:
 	GameMap m_gameMap;
-	std::vector<Entity> m_entities;
+	TextureManager m_textureManager;
+	std::vector<Entity*> m_entities;
 	InputManager m_inputManager;
 	Camera m_camera;
 	sf::Font m_font;
 	sf::Text m_fpsCounter;
 	double m_lastFPSUpdateElapsedTime;
 	int m_lastFPSUpdateElpasedFrame;
+
+	sf::Sprite createSprite(std::string spritePath);
 };

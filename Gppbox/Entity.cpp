@@ -3,12 +3,8 @@
 #include "TextureManager.hpp"
 
 
-Entity::Entity(std::string spritePath, GameMap* gameMap) :
-    m_sprite(
-        spritePath.empty() ?
-        sf::Sprite() :
-        sf::Sprite(TextureManager::getTexture(spritePath))
-    ),
+Entity::Entity(sf::Sprite sprite, GameMap* gameMap, sf::Color color) :
+    m_sprite(sprite),
     m_gameMap(gameMap),
     m_coo(0, 0),
     m_ratio(0.f, 0.f),
@@ -24,6 +20,7 @@ Entity::Entity(std::string spritePath, GameMap* gameMap) :
     sf::FloatRect bounds = m_sprite.getGlobalBounds();
     m_sprite.setOrigin(bounds.width / 2.f, bounds.height);
 	updatePos();
+    m_sprite.setColor(color);
 }
 
 constexpr float RATIO_THRESHOLD = 0.7f;

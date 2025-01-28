@@ -14,7 +14,7 @@ class Entity
 {
 public:
     //Constructs a new Entity with default values.
-    Entity(std::string spritePath = "", GameMap* gameMap = nullptr);
+    Entity(sf::Sprite sprite, GameMap* gameMap = nullptr, sf::Color color = sf::Color::White);
 
     //Updates the entity's position based on its movement vector.
     void update(double dt);
