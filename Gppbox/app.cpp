@@ -123,7 +123,7 @@ int main()
 		//	ImGui::Value("size x", sz.x);
 		//	ImGui::Value("size y", sz.y);
 		//}
-		if (ImGui::CollapsingHeader("App Stats", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen)) {
+		if (ImGui::CollapsingHeader("App Stats")) {
 			//double df = (Lib::getTimeStamp() - frameStart);
 
 			double mdt = std::accumulate(dts.begin(),dts.end(),0.0) / dts.size();

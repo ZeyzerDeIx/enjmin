@@ -9,7 +9,8 @@ InputManager::InputManager() :
 	m_gameMap(nullptr),
 	m_ctrl(false),
 	m_leftClick(false),
-	m_rightClick(false)
+	m_rightClick(false),
+	m_joystickDirections(0)
 {}
 
 InputManager::InputManager(Entity* player, Camera* camera, GameMap* gameMap):
@@ -18,7 +19,8 @@ InputManager::InputManager(Entity* player, Camera* camera, GameMap* gameMap):
 	m_gameMap(gameMap),
 	m_ctrl(false),
 	m_leftClick(false),
-	m_rightClick(false)
+	m_rightClick(false),
+	m_joystickDirections(0)
 {}
 
 void InputManager::setPlayer(Entity* player)
@@ -55,6 +57,35 @@ void InputManager::handleInputs(sf::Event event)
 		m_gameMap->addCell(Cell::create(CellType::Wall, m_camera->getMouseMapCoo()));
 	else if (m_rightClick and m_camera->getFreeCam())
 		m_gameMap->removeCell(m_camera->getMouseMapCoo());
+}
+
+void InputManager::handleJoystick()
+{
+	if (sf::Joystick::isConnected(0))
+		processJoystick();
+}
+
+void InputManager::processJoystick()
+{
+	if (sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X) > 10 and
+		!(m_player->getDirection(Direction::RIGHT)))
+		m_player->setDirection(Direction::RIGHT, true);
+	else if (sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X) < -10 and
+		!(m_player->getDirection(Direction::LEFT)))
+		m_player->setDirection(Direction::LEFT, true);
+	else if (sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X) < 10 and
+			sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X) > -10)
+	{
+		if (m_player->getDirection(Direction::RIGHT) and
+			!sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			m_player->setDirection(Direction::RIGHT, false);
+		else if (m_player->getDirection(Direction::LEFT) and
+			!sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+			m_player->setDirection(Direction::LEFT, false);
+	}
+
+	if (sf::Joystick::isButtonPressed(0, 0))
+		m_player->jump();
 }
 
 void InputManager::processKeyPressed(sf::Keyboard::Key key)

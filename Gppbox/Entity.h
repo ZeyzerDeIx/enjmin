@@ -35,6 +35,7 @@ public:
     float getSpeed();
     const sf::Vector2f& getVelocity();
 	const sf::Vector2f& getPos();
+	bool getDirection(uint8_t direction);
 
 	/**
 	 * @brief Checks if the entity is on the ground.

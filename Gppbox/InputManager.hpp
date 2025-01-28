@@ -12,6 +12,10 @@ public:
 	void setGameMap(GameMap* gameMap);
 	void handleInputs(sf::Event event);
 
+	void handleJoystick();
+
+	void processJoystick();
+
 	void processKeyPressed(sf::Keyboard::Key key);
 	void processKeyReleased(sf::Keyboard::Key key);
 
@@ -25,5 +29,6 @@ private:
 	bool m_ctrl;
 	bool m_leftClick;
 	bool m_rightClick;
+	uint8_t m_joystickDirections;
 };
 

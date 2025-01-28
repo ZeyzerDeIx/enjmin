@@ -78,6 +78,8 @@ void Game::update(double dt)
 	//beforeParts.update(dt);
 	for (auto& entity : m_entities) entity.update(dt);
 	m_camera.update(dt);
+
+	m_inputManager.handleJoystick(); //must be in update to not depend on events
 	//afterParts.update(dt);
 
 	if ((m_lastFPSUpdateElapsedTime += dt) > 0.25)

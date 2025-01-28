@@ -152,6 +152,11 @@ const sf::Vector2f& Entity::getPos()
 	return m_pos;
 }
 
+bool Entity::getDirection(uint8_t direction)
+{
+	return m_directions & direction;
+}
+
 bool Entity::isOnGround()
 {
     return m_gameMap->hasCollision(m_coo.x, m_coo.y + 1);
@@ -162,7 +167,7 @@ bool Entity::im()
     using namespace ImGui;
     bool cooChanged = false, posChanged = false;
 
-    if(CollapsingHeader("Player"))
+    if(CollapsingHeader("Player", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen))
     {
         cooChanged |= DragInt2("Coo", &m_coo.x, 1, -100, 100);
         cooChanged |= DragFloat2("Ratio", &m_ratio.x, 0.0f, 0, 1.0f);
@@ -196,10 +201,12 @@ bool Entity::im()
 
 void Entity::updatePos()
 {
-	sf::Vector2f signs{ m_pos.x < 0 ? -1.f : 1.f, m_pos.y < 0 ? -1.f : 1.f };
+	bool xN = m_pos.x < 0, yN = m_pos.y < 0; // if x or y is negative
+	auto oneC = [](float x) { return 1.f - x; }; // one's complement
+	// xN, yN and oneC are needed to handle negative values
     setPos(
-        ((float)(m_coo.x + (m_coo.x < 0)) + (m_coo.x < 0 ? - 1.f + m_ratio.x : m_ratio.x)) * CELL_SIZE,
-		((float)(m_coo.y + (m_coo.y < 0)) + (m_coo.y < 0 ? - 1.f + m_ratio.y : m_ratio.y)) * CELL_SIZE
+        ((float)(m_coo.x + xN) + (xN ? -oneC(m_ratio.x) : m_ratio.x)) * CELL_SIZE,
+		((float)(m_coo.y + yN) + (yN ? -oneC(m_ratio.y) : m_ratio.y)) * CELL_SIZE
     );
 }
 
