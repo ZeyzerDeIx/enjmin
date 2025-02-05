@@ -5,6 +5,8 @@
 #include "Directions.hpp"
 #include "GameMap.hpp"
 
+class Gun;
+
 
 /**
  * @class Entity
@@ -15,13 +17,16 @@ class Entity
 public:
     //Constructs a new Entity with default values.
     Entity(sf::Sprite sprite, GameMap* gameMap = nullptr, sf::Color color = sf::Color::White);
+    ~Entity();
 
     //Updates the entity's position based on its movement vector.
     void update(double dt);
 	void draw(sf::RenderWindow& win);
     void jump();
 
-    sf::Sprite& getSprite();
+    void addGun();
+    Gun* getGun();
+    void deleteGun();
 
     void setPos(float x, float y);
     void setPos(sf::Vector2f pos);
@@ -36,6 +41,7 @@ public:
     const sf::Vector2f& getVelocity();
 	const sf::Vector2f& getPos();
 	bool getDirection(uint8_t direction);
+    sf::Sprite& getSprite();
 
 	/**
 	 * @brief Checks if the entity is on the ground.
@@ -74,6 +80,8 @@ private:
 
 	//Is the entity jumping.
 	bool m_isJumping;
+
+    Gun* m_gun;
 
     // Private methods
 

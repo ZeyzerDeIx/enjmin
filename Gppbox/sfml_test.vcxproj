@@ -169,6 +169,7 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameMap.cpp" />
+    <ClCompile Include="Gun.cpp" />
     <ClCompile Include="HotReloadShader.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Lib.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="GameMap.hpp" />
+    <ClInclude Include="Gun.hpp" />
     <ClInclude Include="HotReloadShader.hpp" />
     <ClInclude Include="InputManager.hpp" />
     <ClInclude Include="Interp.hpp" />

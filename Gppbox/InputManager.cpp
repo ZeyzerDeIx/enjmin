@@ -1,7 +1,8 @@
+#include <iostream>
 #include <imgui.h>
 #include "InputManager.hpp"
 #include "SFML/Graphics.hpp"
-#include <iostream>
+#include "Gun.hpp"
 
 InputManager::InputManager() :
 	m_player(nullptr),
@@ -115,6 +116,9 @@ void InputManager::processKeyPressed(sf::Keyboard::Key key)
 			break;
 		case sf::Keyboard::LControl:
 			m_ctrl = true;
+			break;
+		case sf::Keyboard::LShift:
+			m_player->getGun()->shoot();
 			break;
         default:
             break;

@@ -25,12 +25,14 @@ Game::Game(sf::RenderWindow * win):
 	//bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 
 	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color::Blue));
+	m_entities[0]->addGun();
 	m_inputManager.setPlayer(m_entities[0]);
 	m_inputManager.setCamera(&m_camera);
 	m_inputManager.setGameMap(&m_gameMap);
 	m_camera.attachEntity(m_entities[0]);
 
-	if (!m_font.loadFromFile("res/MAIAN.TTF")) {
+	if (!m_font.loadFromFile("res/MAIAN.TTF"))
+	{
 		cout << "ERROR NO FONT" << endl;
 		exit(1);
 	}

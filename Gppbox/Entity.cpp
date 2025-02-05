@@ -1,6 +1,11 @@
 #include <imgui.h>
 #include "Entity.h"
 #include "TextureManager.hpp"
+#include "Gun.hpp"
+
+
+constexpr float RATIO_THRESHOLD_X = 0.7f;
+constexpr float RATIO_THRESHOLD_Y = 0.5f;
 
 
 Entity::Entity(sf::Sprite sprite, GameMap* gameMap, sf::Color color) :
@@ -15,15 +20,19 @@ Entity::Entity(sf::Sprite sprite, GameMap* gameMap, sf::Color color) :
     m_jumpForce(1400.f),
     m_brakingSpeed(10000.f),
     m_directions(0b00000000),
-	m_isJumping(false)
+	m_isJumping(false),
+    m_gun(nullptr)
 {
     sf::FloatRect bounds = m_sprite.getGlobalBounds();
-    m_sprite.setOrigin(bounds.width / 2.f, bounds.height);
+    m_sprite.setOrigin(bounds.width / 2.f, bounds.height - CELL_SIZE * (1.f - RATIO_THRESHOLD_Y));
 	updatePos();
     m_sprite.setColor(color);
 }
 
-constexpr float RATIO_THRESHOLD = 0.7f;
+Entity::~Entity()
+{
+    deleteGun();
+}
 
 void Entity::update(double dt)
 {
@@ -39,6 +48,8 @@ void Entity::update(double dt)
 	if(!isOnGround()) m_velocity.y += m_acceleration.y * dt;
 	else if(!m_isJumping) m_velocity.y = 0.f;
 
+    if (m_gun) m_gun->setOrientation(m_directions);
+
     //movement x
     float sign = m_velocity.x >= 0 ? 1.f : -1.f;
 	for (float i = std::abs(m_velocity.x * dt); i > 0.f ; i -= CELL_SIZE)
@@ -46,7 +57,7 @@ void Entity::update(double dt)
 		updateCooAndRatio();
         if (m_gameMap->hasCollision(m_coo.x + sign, m_coo.y))
         {
-            m_ratio.x = sign == 1.f ? RATIO_THRESHOLD : 1.f - RATIO_THRESHOLD;
+            m_ratio.x = sign == 1.f ? RATIO_THRESHOLD_X : 1.f - RATIO_THRESHOLD_X;
 			updatePos();
 			break;
         }
@@ -60,7 +71,7 @@ void Entity::update(double dt)
 		updateCooAndRatio();
 		if (m_gameMap->hasCollision(m_coo.x, m_coo.y + sign))
 		{
-			m_ratio.y = sign == 1.f ? RATIO_THRESHOLD : 1.f - RATIO_THRESHOLD;
+			m_ratio.y = sign == 1.f ? RATIO_THRESHOLD_Y : 1.f - RATIO_THRESHOLD_Y;
 			updatePos();
 			break;
 		}
@@ -81,11 +92,14 @@ void Entity::update(double dt)
 
 	
 	updateSprite();
+
+    if (m_gun) m_gun->update(dt, *m_gameMap);
 }
 
 void Entity::draw(sf::RenderWindow& win)
 {
 	win.draw(m_sprite);
+    if (m_gun) m_gun->draw(win);
 }
 
 void Entity::jump()
@@ -95,6 +109,22 @@ void Entity::jump()
         m_velocity.y = -m_jumpForce;
 		m_isJumping = true;
     }
+}
+
+void Entity::addGun()
+{
+    if (m_gun == nullptr)
+        m_gun = new Gun(this, {8.f, -8.f});
+}
+
+Gun* Entity::getGun()
+{
+    return m_gun;
+}
+
+void Entity::deleteGun()
+{
+    if(m_gun) delete m_gun;
 }
 
 sf::Sprite& Entity::getSprite()
@@ -188,6 +218,8 @@ bool Entity::im()
         if (posChanged) updateCooAndRatio();
 
         DragFloat2("Velocity", &m_velocity.x, 5.f, -m_maxSpeed, m_maxSpeed);
+
+        if (m_gun) m_gun->im();
     }
 
     return cooChanged || posChanged;

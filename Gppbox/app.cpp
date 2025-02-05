@@ -46,7 +46,6 @@ int main()
     //sf::RenderWindow window(sf::VideoMode(1920, 1080,32), "SFML works!");
     //sf::RenderWindow window(sf::VideoMode(800, 600,32), "SFML works!");
     sf::RenderWindow window(sf::VideoMode(1280, 720,32), "SFML works!");
-	window.setVerticalSyncEnabled(false);
 
 	if (!sf::Shader::isAvailable())
 	{
