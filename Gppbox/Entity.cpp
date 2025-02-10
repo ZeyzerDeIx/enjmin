@@ -20,7 +20,9 @@ Entity::Entity(sf::Sprite sprite, GameMap* gameMap, sf::Color color) :
     m_jumpForce(1400.f),
     m_brakingSpeed(10000.f),
     m_directions(0b00000000),
+    m_hp(3),
 	m_isJumping(false),
+    m_hasAMustache(false),
     m_gun(nullptr)
 {
     sf::FloatRect bounds = m_sprite.getGlobalBounds();
@@ -111,10 +113,10 @@ void Entity::jump()
     }
 }
 
-void Entity::addGun()
+void Entity::addGun(std::vector<Entity*>& entities)
 {
     if (m_gun == nullptr)
-        m_gun = new Gun(this, {8.f, -8.f});
+        m_gun = new Gun(this, {8.f, -8.f}, entities);
 }
 
 Gun* Entity::getGun()
@@ -125,6 +127,11 @@ Gun* Entity::getGun()
 void Entity::deleteGun()
 {
     if(m_gun) delete m_gun;
+}
+
+void Entity::onHit()
+{
+    m_hp--;
 }
 
 sf::Sprite& Entity::getSprite()
@@ -182,6 +189,11 @@ const sf::Vector2f& Entity::getPos()
 bool Entity::getDirection(uint8_t direction)
 {
 	return m_directions & direction;
+}
+
+bool Entity::isDead()
+{
+    return m_hp <= 0;
 }
 
 bool Entity::isOnGround()

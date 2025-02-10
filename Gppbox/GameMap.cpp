@@ -12,6 +12,14 @@ const std::vector<Cell>& GameMap::getCells()
 	return m_cells;
 }
 
+const Cell* GameMap::getCell(sf::Vector2i coo)
+{
+	for(auto& cell : m_cells)
+		if (cell.coo == coo and cell.type == CellType::Wall)
+			return &cell;
+	return nullptr;
+}
+
 bool GameMap::hasCollision(sf::Vector2i coo)
 {
 	for(auto& cell : m_cells)
@@ -23,6 +31,24 @@ bool GameMap::hasCollision(sf::Vector2i coo)
 bool GameMap::hasCollision(int x, int y)
 {
 	return hasCollision({ x, y });
+}
+
+bool GameMap::collide(sf::FloatRect bounds)
+{
+	for (auto& cell : m_cells)
+	{
+		sf::FloatRect cellBounds = cell.sprite.getGlobalBounds();
+		if (((bounds.left + bounds.width >= cellBounds.left and
+			  bounds.left + bounds.width <= cellBounds.left + cellBounds.width) or
+			 (bounds.left >= cellBounds.left and
+			  bounds.left <= cellBounds.left + cellBounds.width)) and
+			((bounds.top + bounds.height >= cellBounds.top and
+			  bounds.top + bounds.height <= cellBounds.top + cellBounds.height) or
+			 (bounds.top >= cellBounds.top and
+			  bounds.top <= cellBounds.top + cellBounds.height)))
+			return true;
+	}
+	return false;
 }
 
 void GameMap::draw(sf::RenderWindow& win)

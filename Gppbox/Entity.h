@@ -24,9 +24,11 @@ public:
 	void draw(sf::RenderWindow& win);
     void jump();
 
-    void addGun();
+    void addGun(std::vector<Entity*>& entities);
     Gun* getGun();
     void deleteGun();
+
+    void onHit();
 
     void setPos(float x, float y);
     void setPos(sf::Vector2f pos);
@@ -41,6 +43,7 @@ public:
     const sf::Vector2f& getVelocity();
 	const sf::Vector2f& getPos();
 	bool getDirection(uint8_t direction);
+    bool isDead();
     sf::Sprite& getSprite();
 
 	/**
@@ -80,6 +83,10 @@ private:
 
 	//Is the entity jumping.
 	bool m_isJumping;
+    bool m_hasAMustache;
+
+    //Heal points
+    int m_hp;
 
     Gun* m_gun;
 

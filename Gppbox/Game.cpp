@@ -25,7 +25,7 @@ Game::Game(sf::RenderWindow * win):
 	//bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 
 	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color::Blue));
-	m_entities[0]->addGun();
+	m_entities[0]->addGun(m_entities);
 	m_inputManager.setPlayer(m_entities[0]);
 	m_inputManager.setCamera(&m_camera);
 	m_inputManager.setGameMap(&m_gameMap);
@@ -86,6 +86,15 @@ void Game::update(double dt)
 
 	//beforeParts.update(dt);
 	for (auto& entity : m_entities) entity->update(dt);
+	for (auto it = m_entities.begin(); it != m_entities.end();)
+	{
+		if ((*it)->isDead())
+		{
+			delete (*it);
+			it = m_entities.erase(it);
+		}
+		else it++;
+	}
 	m_camera.update(dt);
 
 	m_inputManager.handleJoystick(); //must be in update to not depend on events

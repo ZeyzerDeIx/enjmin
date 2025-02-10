@@ -49,6 +49,7 @@ class GameMap
 public:
 	GameMap();
 	const std::vector<Cell>& getCells();
+	const Cell* getCell(sf::Vector2i coo);
 	/**
 	 * @brief Checks if a cell has a collision.
 	 * @param coo The cell coordinates.
@@ -62,6 +63,8 @@ public:
 	 * @return True if the cell has a collision, false otherwise.
 	 */
 	bool hasCollision(int x, int y);
+
+	bool collide(sf::FloatRect bounds);
 
 	void draw(sf::RenderWindow& win);
 
