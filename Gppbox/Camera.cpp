@@ -8,6 +8,8 @@ Camera::Camera(sf::RenderWindow* window) :
 	m_window(window),
 	m_entity(nullptr),
 	m_zoomFactor(0.6f),
+	m_shakeDuration(0.f),
+	m_shakeIntensity(0),
 	m_freeCam(false),
 	m_directions(Direction::NONE),
 	m_freeCamSpeed(500.f)
@@ -29,8 +31,10 @@ void Camera::update(double dt)
 	else if (m_entity)
 	{
 		m_view.setCenter(m_entity->getPos());
+		if(m_shakeDuration > 0.f) move(rand() % m_shakeIntensity, rand() % m_shakeIntensity);
 		m_window->setView(m_view);
 	}
+	m_shakeDuration -= dt;
 }
 
 void Camera::attachEntity(Entity* entity)
@@ -81,6 +85,11 @@ sf::Vector2i Camera::getMouseMapCoo() const
 	};
 }
 
+sf::Vector2i Camera::getMouseMapPos() const
+{
+	return sf::Mouse::getPosition(*m_window);
+}
+
 void Camera::move(float offsetX, float offsetY)
 {
 	m_view.move(offsetX, offsetY);
@@ -96,4 +105,10 @@ void Camera::setDirection(uint8_t direction, bool state)
 {
 	if (state) m_directions |= direction;
 	else m_directions ^= direction;
+}
+
+void Camera::triggerScreenShake(int intensity, float duration)
+{
+	m_shakeIntensity = intensity;
+	m_shakeDuration = duration;
 }

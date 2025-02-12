@@ -3,6 +3,7 @@
 #include "InputManager.hpp"
 #include "SFML/Graphics.hpp"
 #include "Gun.hpp"
+#include "Game.hpp"
 
 InputManager::InputManager() :
 	m_player(nullptr),
@@ -39,6 +40,11 @@ void InputManager::setGameMap(GameMap* gameMap)
 	m_gameMap = gameMap;
 }
 
+void InputManager::setGame(Game* game)
+{
+	m_game = game;
+}
+
 void InputManager::handleInputs(sf::Event event)
 {
 	if (event.type == sf::Event::KeyPressed)
@@ -54,7 +60,10 @@ void InputManager::handleInputs(sf::Event event)
 
 	if (ImGui::GetIO().WantCaptureMouse) return;
 	if (m_leftClick and m_camera->getFreeCam())
-		m_gameMap->addCell(Cell::create(CellType::Wall, m_camera->getMouseMapCoo()));
+	{
+		if (m_ctrl) m_game->spawnEnemy({(float)m_camera->getMouseMapPos().x, (float)m_camera->getMouseMapPos().y});
+		else m_gameMap->addCell(Cell::create(CellType::Wall, m_camera->getMouseMapCoo()));
+	}
 	else if (m_rightClick and m_camera->getFreeCam())
 		m_gameMap->removeCell(m_camera->getMouseMapCoo());
 }
@@ -97,7 +106,11 @@ void InputManager::processKeyPressed(sf::Keyboard::Key key)
 			if (freeCam) m_camera->setDirection(Direction::UP, true);
 			break;
 		case sf::Keyboard::S:
-			if (m_ctrl) m_gameMap->saveMap();
+			if (m_ctrl)
+			{
+				m_gameMap->saveMap();
+				m_game->saveEnemies();
+			}
 			else if (freeCam) m_camera->setDirection(Direction::DOWN, true);
 			break;
         case sf::Keyboard::Q:
@@ -118,7 +131,7 @@ void InputManager::processKeyPressed(sf::Keyboard::Key key)
 			m_ctrl = true;
 			break;
 		case sf::Keyboard::LShift:
-			m_player->getGun()->shoot();
+			m_player->shoot();
 			break;
         default:
             break;
@@ -146,6 +159,9 @@ void InputManager::processKeyReleased(sf::Keyboard::Key key)
 			break;
 		case sf::Keyboard::LControl:
 			m_ctrl = false;
+			break;
+		case sf::Keyboard::LShift:
+			m_player->shoot(false);
 			break;
 		default:
 			break;

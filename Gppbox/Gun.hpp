@@ -5,6 +5,8 @@
 #include "SFML/Graphics.hpp"
 #include "Entity.h"
 
+class Camera;
+
 class Projectile
 {
 public:
@@ -24,10 +26,10 @@ private:
 class Gun
 {
 public:
-	Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities);
+	Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera);
 	void update(double dt, GameMap &gameMap);
-	void shoot();
 	void draw(sf::RenderWindow& win);
+	void setShoot(bool enable);
 	void im();
 	void setOrientation(uint8_t orientation);
 
@@ -35,9 +37,14 @@ public:
 private:
 	Entity* m_entity;
 	std::vector<Entity*>& m_entities;
+	Camera* m_camera;
 	sf::RectangleShape m_sprite;
 	sf::Vector2f m_offset;
 	std::list<Projectile> m_projectils;
 	bool m_lookAtRight;
+	bool m_shootEnabled;
+	float m_shootDelay;
+	float m_shootTimer;
+	void shoot();
 };
 

@@ -54,4 +54,9 @@ private:
 	int m_lastFPSUpdateElpasedFrame;
 
 	sf::Sprite createSprite(std::string spritePath);
+	void spawnEnemy(sf::Vector2f pos);
+	void loadEnemies();
+	void saveEnemies();
+
+	friend class InputManager;
 };

@@ -2,16 +2,17 @@
 #include <imgui.h>
 
 #include "Gun.hpp"
+#include "Camera.h"
 
 Projectile::Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities):
-    m_sprite(10.f),
+    m_sprite(7.f),
 	m_velocity(velocity),
     m_entities(entities),
     m_toDestroy(false)
 {
-    m_sprite.setPosition(position);
     auto bounds = m_sprite.getGlobalBounds();
     m_sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+    m_sprite.setPosition(position);
 }
 
 void Projectile::update(double dt, GameMap &gameMap, Gun& gun)
@@ -61,12 +62,16 @@ bool Projectile::getToDestroy()
     return m_toDestroy;
 }
 
-Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities):
-	m_entity(entity),
+Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera) :
+    m_entity(entity),
     m_entities(entities),
-    m_sprite({20.f, 8.f}),
+    m_camera(camera),
+    m_sprite({ 20.f, 8.f }),
     m_offset(offset),
-    m_lookAtRight(true)
+    m_lookAtRight(true),
+    m_shootEnabled(false),
+    m_shootDelay(0.1f),
+    m_shootTimer(0.f)
 {
     m_sprite.setOrigin({ m_sprite.getGlobalBounds().width / 2.f, m_sprite.getGlobalBounds().height / 2.f });
     m_sprite.setPosition(m_entity->getPos() + m_offset);
@@ -83,15 +88,20 @@ void Gun::update(double dt, GameMap &gameMap)
     m_sprite.setPosition(m_entity->getPos() + m_offset);
     for (auto& projectile : m_projectils)
         projectile.update(dt, gameMap, *this);
+
+    if (m_shootEnabled and (m_shootTimer -= dt) <= 0.f)
+        shoot();
 }
 
 void Gun::shoot()
 {
     sf::Vector2f gunPos = m_sprite.getPosition();
     sf::FloatRect gunBounds = m_sprite.getGlobalBounds();
-    sf::Vector2f spawnPos(gunPos.x + gunBounds.width * (m_lookAtRight ? 1.f : -1.f), gunPos.y + gunBounds.height / 2);
+    sf::Vector2f spawnPos(gunPos.x + gunBounds.width/2 * (m_lookAtRight ? 1.f : -1.f), gunPos.y);
     Projectile newProjectile(spawnPos, {600.f * (m_lookAtRight? 1.f : -1.f), 0.f}, m_entities);
     m_projectils.push_back(newProjectile);
+    m_shootTimer = m_shootDelay;
+    m_camera->triggerScreenShake(4, 0.2f);
 }
 
 void Gun::draw(sf::RenderWindow& win)
@@ -99,6 +109,11 @@ void Gun::draw(sf::RenderWindow& win)
     win.draw(m_sprite);
     for (Projectile& projectil : m_projectils)
         projectil.draw(win);
+}
+
+void Gun::setShoot(bool enable)
+{
+    if (m_shootEnabled = enable) m_shootTimer = 0.f;
 }
 
 void Gun::im()

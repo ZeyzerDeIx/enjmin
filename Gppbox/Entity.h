@@ -6,6 +6,7 @@
 #include "GameMap.hpp"
 
 class Gun;
+class Camera;
 
 
 /**
@@ -24,9 +25,10 @@ public:
 	void draw(sf::RenderWindow& win);
     void jump();
 
-    void addGun(std::vector<Entity*>& entities);
+    void addGun(std::vector<Entity*>& entities, Camera* camera);
     Gun* getGun();
     void deleteGun();
+    void shoot(bool enable = true);
 
     void onHit();
 
@@ -38,6 +40,7 @@ public:
     void setDirections(uint8_t directions);
     //Set one direction on true or false.
     void setDirection(uint8_t direction, bool state);
+    void setMustache(bool enable);
 
     float getSpeed();
     const sf::Vector2f& getVelocity();
@@ -84,6 +87,7 @@ private:
 	//Is the entity jumping.
 	bool m_isJumping;
     bool m_hasAMustache;
+    bool m_didCollide;
 
     //Heal points
     int m_hp;
@@ -98,4 +102,6 @@ private:
     void updateCooAndRatio();
     //Update m_sprite position based on m_position.
     void updateSprite();
+    //Process mustache IA behaviour.
+    void doMustacheThing();
 };

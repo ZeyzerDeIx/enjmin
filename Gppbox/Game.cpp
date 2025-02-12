@@ -2,6 +2,7 @@
 #include <imgui.h>
 #include <array>
 #include <vector>
+#include <fstream>
 
 #include "C.hpp"
 #include "Game.hpp"
@@ -25,10 +26,11 @@ Game::Game(sf::RenderWindow * win):
 	//bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 
 	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color::Blue));
-	m_entities[0]->addGun(m_entities);
+	m_entities[0]->addGun(m_entities, &m_camera);
 	m_inputManager.setPlayer(m_entities[0]);
 	m_inputManager.setCamera(&m_camera);
 	m_inputManager.setGameMap(&m_gameMap);
+	m_inputManager.setGame(this);
 	m_camera.attachEntity(m_entities[0]);
 
 	if (!m_font.loadFromFile("res/MAIAN.TTF"))
@@ -42,7 +44,7 @@ Game::Game(sf::RenderWindow * win):
 	m_lastFPSUpdateElapsedTime = 0.0;
 	m_lastFPSUpdateElpasedFrame = 0;
 
-	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap));
+	loadEnemies();
 }
 
 Game::~Game()
@@ -146,3 +148,38 @@ sf::Sprite Game::createSprite(std::string spritePath)
 	return sf::Sprite(m_textureManager.getTexture(spritePath));
 }
 
+void Game::spawnEnemy(sf::Vector2f pos)
+{
+	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap));
+	m_entities.back()->setPos(pos);
+	m_entities.back()->setMustache(true);
+}
+
+void Game::loadEnemies()
+{
+	std::ifstream file("enemies.txt");
+	if (!file.is_open())
+	{
+		std::cerr << "Error opening enemies file to load" << std::endl;
+		return;
+	}
+	float x, y;
+	while (file >> x >> y)
+		spawnEnemy({ x,y });
+	file.close();
+	std::cout << "Enemies loaded" << std::endl;
+}
+
+void Game::saveEnemies()
+{
+	std::ofstream file("enemies.txt");
+	if (!file.is_open())
+	{
+		std::cerr << "Error opening enemies file to save" << std::endl;
+		return;
+	}
+	for (int i=1 ; i<m_entities.size() ; i++)
+		file << m_entities[i]->getPos().x << " " << m_entities[i]->getPos().y << " " << std::endl;
+	file.close();
+	std::cout << "Enemies saved" << std::endl;
+}

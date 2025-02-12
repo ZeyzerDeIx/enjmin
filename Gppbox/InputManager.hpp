@@ -2,6 +2,8 @@
 #include "Entity.h"
 #include "Camera.h"
 
+class Game;
+
 class InputManager
 {
 public:
@@ -10,6 +12,7 @@ public:
 	void setPlayer(Entity* player);
 	void setCamera(Camera* camera);
 	void setGameMap(GameMap* gameMap);
+	void setGame(Game* game);
 	void handleInputs(sf::Event event);
 
 	void handleJoystick();
@@ -25,6 +28,7 @@ private:
 	Entity* m_player;
 	Camera* m_camera;
 	GameMap* m_gameMap;
+	Game* m_game;
 
 	bool m_ctrl;
 	bool m_leftClick;

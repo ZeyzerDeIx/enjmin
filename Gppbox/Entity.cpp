@@ -21,8 +21,9 @@ Entity::Entity(sf::Sprite sprite, GameMap* gameMap, sf::Color color) :
     m_brakingSpeed(10000.f),
     m_directions(0b00000000),
     m_hp(3),
-	m_isJumping(false),
+    m_isJumping(false),
     m_hasAMustache(false),
+    m_didCollide(true),
     m_gun(nullptr)
 {
     sf::FloatRect bounds = m_sprite.getGlobalBounds();
@@ -38,6 +39,9 @@ Entity::~Entity()
 
 void Entity::update(double dt)
 {
+    if (m_hasAMustache)
+        doMustacheThing();
+
     //acceleration
     if (m_directions & Direction::LEFT)
         m_velocity.x -= m_acceleration.x * dt;
@@ -60,6 +64,7 @@ void Entity::update(double dt)
         if (m_gameMap->hasCollision(m_coo.x + sign, m_coo.y))
         {
             m_ratio.x = sign == 1.f ? RATIO_THRESHOLD_X : 1.f - RATIO_THRESHOLD_X;
+            m_didCollide = true;
 			updatePos();
 			break;
         }
@@ -74,6 +79,7 @@ void Entity::update(double dt)
 		if (m_gameMap->hasCollision(m_coo.x, m_coo.y + sign))
 		{
 			m_ratio.y = sign == 1.f ? RATIO_THRESHOLD_Y : 1.f - RATIO_THRESHOLD_Y;
+            m_didCollide = true;
 			updatePos();
 			break;
 		}
@@ -113,10 +119,10 @@ void Entity::jump()
     }
 }
 
-void Entity::addGun(std::vector<Entity*>& entities)
+void Entity::addGun(std::vector<Entity*>& entities, Camera* camera)
 {
     if (m_gun == nullptr)
-        m_gun = new Gun(this, {8.f, -8.f}, entities);
+        m_gun = new Gun(this, {8.f, -8.f}, entities, camera);
 }
 
 Gun* Entity::getGun()
@@ -127,6 +133,11 @@ Gun* Entity::getGun()
 void Entity::deleteGun()
 {
     if(m_gun) delete m_gun;
+}
+
+void Entity::shoot(bool enable)
+{
+    if (m_gun) m_gun->setShoot(enable);
 }
 
 void Entity::onHit()
@@ -169,6 +180,11 @@ void Entity::setDirection(uint8_t direction, bool state)
 {
     if (state) m_directions |= direction;
     else m_directions ^= direction;
+}
+
+void Entity::setMustache(bool enable)
+{
+    m_hasAMustache = enable;
 }
 
 float Entity::getSpeed()
@@ -271,4 +287,16 @@ void Entity::updateCooAndRatio()
 void Entity::updateSprite()
 {
     m_sprite.setPosition(m_pos.x, m_pos.y);
+}
+
+void Entity::doMustacheThing()
+{
+    if (m_didCollide)
+    {
+        if (m_directions == Direction::NONE or m_directions & Direction::RIGHT)
+            setDirections(Direction::LEFT);
+        else if (m_directions & Direction::LEFT)
+            setDirections(Direction::RIGHT);
+        m_didCollide = false;
+    }
 }
