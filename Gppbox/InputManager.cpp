@@ -59,12 +59,12 @@ void InputManager::handleInputs(sf::Event event)
 	}
 
 	if (ImGui::GetIO().WantCaptureMouse) return;
-	if (m_leftClick and m_camera->getFreeCam())
+	if (m_leftClick and m_camera->getEditorMode())
 	{
 		if (m_ctrl) m_game->spawnEnemy({(float)m_camera->getMouseMapPos().x, (float)m_camera->getMouseMapPos().y});
 		else m_gameMap->addCell(Cell::create(CellType::Wall, m_camera->getMouseMapCoo()));
 	}
-	else if (m_rightClick and m_camera->getFreeCam())
+	else if (m_rightClick and m_camera->getEditorMode())
 		m_gameMap->removeCell(m_camera->getMouseMapCoo());
 }
 
@@ -99,7 +99,7 @@ void InputManager::processJoystick()
 
 void InputManager::processKeyPressed(sf::Keyboard::Key key)
 {
-	bool freeCam = m_camera->getFreeCam();
+	bool freeCam = m_camera->getEditorMode();
     switch (key)
     {
 		case sf::Keyboard::Z:
@@ -122,7 +122,7 @@ void InputManager::processKeyPressed(sf::Keyboard::Key key)
 			else m_player->setDirection(Direction::RIGHT, true);
             break;
 		case sf::Keyboard::E:
-			if (m_ctrl) m_camera->enableFreeCam(!freeCam);
+			if (m_ctrl) m_camera->setEditorMode(!freeCam);
 			break;
 		case sf::Keyboard::Space:
 			if (!freeCam) m_player->jump();
@@ -140,21 +140,21 @@ void InputManager::processKeyPressed(sf::Keyboard::Key key)
 
 void InputManager::processKeyReleased(sf::Keyboard::Key key)
 {
-	bool freeCam = m_camera->getFreeCam();
+	bool editorMode = m_camera->getEditorMode();
 	switch (key)
 	{
 		case sf::Keyboard::Z:
-			if(freeCam) m_camera->setDirection(Direction::UP, false);
+			if(editorMode) m_camera->setDirection(Direction::UP, false);
 			break;
 		case sf::Keyboard::S:
-			if(!m_ctrl and freeCam) m_camera->setDirection(Direction::DOWN, false);
+			if(!m_ctrl and editorMode) m_camera->setDirection(Direction::DOWN, false);
 			break;
 		case sf::Keyboard::Q:
-			if(freeCam) m_camera->setDirection(Direction::LEFT, false);
+			if(editorMode) m_camera->setDirection(Direction::LEFT, false);
 			else m_player->setDirection(Direction::LEFT, false);
 			break;
 		case sf::Keyboard::D:
-			if(freeCam) m_camera->setDirection(Direction::RIGHT, false);
+			if(editorMode) m_camera->setDirection(Direction::RIGHT, false);
 			else m_player->setDirection(Direction::RIGHT, false);
 			break;
 		case sf::Keyboard::LControl:
