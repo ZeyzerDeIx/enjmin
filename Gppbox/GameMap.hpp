@@ -14,7 +14,8 @@ constexpr int WALL_COLOR = 0x666666ff;
 enum class CellType
 {
 	Void,
-	Wall
+	Wall,
+	Enemy //yup this is a bit funky but enemies are considered cells for storage purposes
 };
 
 /**
@@ -39,7 +40,7 @@ struct Cell
 		return cell;
 	}
 };
-
+class Game;
 /**
  * @class GameMap
  * @brief A class representing the game map.
@@ -76,6 +77,9 @@ public:
 
 private:
 	std::vector<Cell> m_cells;
+	std::vector<sf::Vector2i> m_enemiesCoo;
 	std::vector<sf::RectangleShape> wallSprites;
+
+	friend Game;
 };
 

@@ -86,7 +86,13 @@ void GameMap::loadMap()
 	}
 	int x, y, type;
 	while (file >> x >> y >> type)
-		addCell(Cell::create((CellType)type, { x, y }));
+	{
+		if ((CellType)type == CellType::Wall)
+			addCell(Cell::create((CellType)type, { x, y }));
+		else if ((CellType)type == CellType::Enemy)
+			m_enemiesCoo.push_back({ x,y });
+	}
+		
 	file.close();
 	std::cout << "Map loaded" << std::endl;
 }
@@ -101,6 +107,8 @@ void GameMap::saveMap()
 	}
 	for (auto& cell : m_cells)
 		file << cell.coo.x << " " << cell.coo.y << " " << (int)cell.type << std::endl;
+	for (auto& enemyCoo : m_enemiesCoo)
+		file << enemyCoo.x << " " << enemyCoo.y << " " << (int)CellType::Enemy << std::endl;
 	file.close();
 	std::cout << "Map saved" << std::endl;
 }

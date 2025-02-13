@@ -203,6 +203,11 @@ const sf::Vector2f& Entity::getPos()
 	return m_pos;
 }
 
+const sf::Vector2i& Entity::getCoo()
+{
+    return m_coo;
+}
+
 bool Entity::getDirection(uint8_t direction)
 {
 	return m_directions & direction;
@@ -292,6 +297,7 @@ void Entity::updateSprite()
 
 void Entity::doMustacheThing()
 {
+    if (!isOnGround()) return;
     if (m_didCollide)
     {
         if (m_directions == Direction::NONE or m_directions & Direction::RIGHT)

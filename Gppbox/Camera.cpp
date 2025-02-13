@@ -50,10 +50,10 @@ void Camera::im()
 
 	if(CollapsingHeader("Camera"))
 	{
-		Checkbox("Free cam", &m_editorMode);
+		Checkbox("Editor mode", &m_editorMode);
 		if (m_editorMode)
 		{
-			DragFloat("Speed", &m_freeCamSpeed, 10.f, 10.f, 1000.f);
+			DragFloat("Free cam speed", &m_freeCamSpeed, 10.f, 10.f, 1000.f);
 
 			std::string dir = "Directions: ";
 			if (m_directions & Direction::UP) dir += "UP ";
@@ -85,9 +85,9 @@ sf::Vector2i Camera::getMouseMapCoo() const
 	};
 }
 
-sf::Vector2i Camera::getMouseMapPos() const
+sf::Vector2f Camera::getMouseMapPos() const
 {
-	return sf::Mouse::getPosition(*m_window);
+	return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window), m_view);
 }
 
 void Camera::move(float offsetX, float offsetY)

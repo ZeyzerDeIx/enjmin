@@ -15,7 +15,7 @@ public:
 
 	bool getEditorMode() const;
 	sf::Vector2i getMouseMapCoo() const;
-	sf::Vector2i getMouseMapPos() const;
+	sf::Vector2f getMouseMapPos() const;
 
     void move(float offsetX, float offsetY);
 

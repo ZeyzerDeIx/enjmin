@@ -12,7 +12,8 @@
 
 
 Game::Game(sf::RenderWindow * win):
-	m_camera(win)
+	m_camera(win),
+	m_editorMode(false)
 {
 	this->win = win;
 	win->setKeyRepeatEnabled(false);
@@ -87,7 +88,10 @@ void Game::update(double dt)
 	//if (bgShader) bgShader->update(dt);
 
 	//beforeParts.update(dt);
-	for (auto& entity : m_entities) entity->update(dt);
+	if(!m_camera.getEditorMode())
+		for (auto& entity : m_entities)
+			entity->update(dt);
+
 	for (auto it = m_entities.begin(); it != m_entities.end();)
 	{
 		if ((*it)->isDead())
@@ -102,6 +106,12 @@ void Game::update(double dt)
 	m_inputManager.handleJoystick(); //must be in update to not depend on events
 	//afterParts.update(dt);
 
+	if (m_camera.getEditorMode() and !m_editorMode)
+		onEditorModeEnabled();
+	else if (!m_camera.getEditorMode() and m_editorMode)
+		m_editorMode = false;
+
+	// Calculate FPS
 	if ((m_lastFPSUpdateElapsedTime += dt) > 0.25)
 	{
 		m_fpsCounter.setString("FPS: " + std::to_string((int)(m_lastFPSUpdateElpasedFrame / m_lastFPSUpdateElapsedTime)));
@@ -152,34 +162,46 @@ void Game::spawnEnemy(sf::Vector2f pos)
 {
 	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color{0xcc3300ff}));
 	m_entities.back()->setPos(pos);
+	m_entities.back()->updateCooAndRatio();
+	m_entities.back()->updateSprite();
 	m_entities.back()->setMustache(true);
+}
+
+void Game::deleteEnemy(sf::Vector2f pos)
+{
+    for (auto it = m_entities.begin() + 1; it != m_entities.end();)
+    {
+        sf::FloatRect bounds = (*it)->m_sprite.getGlobalBounds();
+        if (bounds.contains(pos))
+        {
+            delete (*it);
+            it = m_entities.erase(it);
+        }
+        else ++it;
+    }
 }
 
 void Game::loadEnemies()
 {
-	std::ifstream file("enemies.txt");
-	if (!file.is_open())
-	{
-		std::cerr << "Error opening enemies file to load" << std::endl;
-		return;
-	}
-	float x, y;
-	while (file >> x >> y)
-		spawnEnemy({ x,y });
-	file.close();
-	std::cout << "Enemies loaded" << std::endl;
+    Entity* player = m_entities[0];
+	for (int i = 1; i < m_entities.size(); i++)
+		delete m_entities[i];
+    m_entities.clear();
+    m_entities.push_back(player);
+
+	for (auto& enemyCoo : m_gameMap.m_enemiesCoo)
+		spawnEnemy({ (float)enemyCoo.x * CELL_SIZE, (float)enemyCoo.y * CELL_SIZE });
 }
 
 void Game::saveEnemies()
 {
-	std::ofstream file("enemies.txt");
-	if (!file.is_open())
-	{
-		std::cerr << "Error opening enemies file to save" << std::endl;
-		return;
-	}
-	for (int i=1 ; i<m_entities.size() ; i++)
-		file << m_entities[i]->getPos().x << " " << m_entities[i]->getPos().y << " " << std::endl;
-	file.close();
-	std::cout << "Enemies saved" << std::endl;
+	m_gameMap.m_enemiesCoo.clear();
+	for (int i = 1; i < m_entities.size(); i++)
+		m_gameMap.m_enemiesCoo.push_back(m_entities[i]->getCoo());
+}
+
+void Game::onEditorModeEnabled()
+{
+	m_editorMode = true;
+	loadEnemies();
 }

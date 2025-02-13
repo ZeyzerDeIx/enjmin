@@ -7,6 +7,7 @@
 
 class Gun;
 class Camera;
+class Game;
 
 
 /**
@@ -45,6 +46,7 @@ public:
     float getSpeed();
     const sf::Vector2f& getVelocity();
 	const sf::Vector2f& getPos();
+	const sf::Vector2i& getCoo();
 	bool getDirection(uint8_t direction);
     bool isDead();
     sf::Sprite& getSprite();
@@ -108,4 +110,5 @@ private:
     void applyRecoil(float direction);
 
     friend Gun;
+    friend Game;
 };

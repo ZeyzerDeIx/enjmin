@@ -52,11 +52,14 @@ private:
 	sf::Text m_fpsCounter;
 	double m_lastFPSUpdateElapsedTime;
 	int m_lastFPSUpdateElpasedFrame;
+	bool m_editorMode;
 
 	sf::Sprite createSprite(std::string spritePath);
 	void spawnEnemy(sf::Vector2f pos);
+	void deleteEnemy(sf::Vector2f pos);
 	void loadEnemies();
 	void saveEnemies();
+	void onEditorModeEnabled();
 
 	friend class InputManager;
 };
