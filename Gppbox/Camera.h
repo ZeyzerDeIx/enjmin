@@ -11,9 +11,9 @@ public:
 	void im();
 
 
-	void enableFreeCam(bool enable);
+	void setEditorMode(bool enable);
 
-	bool getFreeCam() const;
+	bool getEditorMode() const;
 	sf::Vector2i getMouseMapCoo() const;
 	sf::Vector2i getMouseMapPos() const;
 
@@ -33,7 +33,7 @@ private:
 	float m_zoomFactor;
 	float m_shakeDuration;
 	int m_shakeIntensity;
-	bool m_freeCam = false;
+	bool m_editorMode = false;
 	uint8_t m_directions;
 	float m_freeCamSpeed;
 	sf::View m_view;

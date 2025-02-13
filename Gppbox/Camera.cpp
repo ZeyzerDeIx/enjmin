@@ -10,7 +10,7 @@ Camera::Camera(sf::RenderWindow* window) :
 	m_zoomFactor(0.6f),
 	m_shakeDuration(0.f),
 	m_shakeIntensity(0),
-	m_freeCam(false),
+	m_editorMode(false),
 	m_directions(Direction::NONE),
 	m_freeCamSpeed(500.f)
 {
@@ -21,7 +21,7 @@ Camera::Camera(sf::RenderWindow* window) :
 
 void Camera::update(double dt)
 {
-	if(m_freeCam)
+	if(m_editorMode)
 	{
 		if (m_directions & Direction::UP) move(0, -m_freeCamSpeed * dt);
 		if (m_directions & Direction::DOWN) move(0, m_freeCamSpeed * dt);
@@ -50,8 +50,8 @@ void Camera::im()
 
 	if(CollapsingHeader("Camera"))
 	{
-		Checkbox("Free cam", &m_freeCam);
-		if (m_freeCam)
+		Checkbox("Free cam", &m_editorMode);
+		if (m_editorMode)
 		{
 			DragFloat("Speed", &m_freeCamSpeed, 10.f, 10.f, 1000.f);
 
@@ -71,8 +71,8 @@ void Camera::im()
 	}
 }
 
-void Camera::enableFreeCam(bool enable) { m_freeCam = enable; }
-bool Camera::getFreeCam() const { return m_freeCam; }
+void Camera::setEditorMode(bool enable) { m_editorMode = enable; }
+bool Camera::getEditorMode() const { return m_editorMode; }
 
 sf::Vector2i Camera::getMouseMapCoo() const
 {
