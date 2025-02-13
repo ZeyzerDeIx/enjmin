@@ -25,7 +25,7 @@ Game::Game(sf::RenderWindow * win):
 
 	//bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 
-	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color::Blue));
+	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color{ 0x29a329ff }));
 	m_entities[0]->addGun(m_entities, &m_camera);
 	m_inputManager.setPlayer(m_entities[0]);
 	m_inputManager.setCamera(&m_camera);
@@ -150,7 +150,7 @@ sf::Sprite Game::createSprite(std::string spritePath)
 
 void Game::spawnEnemy(sf::Vector2f pos)
 {
-	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap));
+	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color{0xcc3300ff}));
 	m_entities.back()->setPos(pos);
 	m_entities.back()->setMustache(true);
 }

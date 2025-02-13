@@ -28,12 +28,12 @@ void Projectile::update(double dt, GameMap &gameMap, Gun& gun)
         (int)pos.y / CELL_SIZE - (pos.x < 0)
     };
     sf::Vector2i caseToCehck{ coo.x + (int)sign, coo.y };
-    if (gameMap.collide(m_sprite.getGlobalBounds()) or abs(gun.getSprite().getPosition().x - pos.x) > 400)
+    if (gameMap.collide(m_sprite.getGlobalBounds()) or abs(gun.getSprite().getPosition().x - pos.x) > 600)
         m_toDestroy = true;
 
     for (auto& entity : m_entities)
         if (collideWith(*entity) and (m_toDestroy = true))
-            entity->onHit();
+            entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f);
 }
 
 void Projectile::draw(sf::RenderWindow& win)
@@ -70,7 +70,7 @@ Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Ca
     m_offset(offset),
     m_lookAtRight(true),
     m_shootEnabled(false),
-    m_shootDelay(0.1f),
+    m_shootDelay(0.083f),
     m_shootTimer(0.f)
 {
     m_sprite.setOrigin({ m_sprite.getGlobalBounds().width / 2.f, m_sprite.getGlobalBounds().height / 2.f });
@@ -102,6 +102,7 @@ void Gun::shoot()
     m_projectils.push_back(newProjectile);
     m_shootTimer = m_shootDelay;
     m_camera->triggerScreenShake(4, 0.2f);
+    m_entity->applyRecoil(m_lookAtRight ? -1.f : 1.f);
 }
 
 void Gun::draw(sf::RenderWindow& win)

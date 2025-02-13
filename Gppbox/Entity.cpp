@@ -140,9 +140,10 @@ void Entity::shoot(bool enable)
     if (m_gun) m_gun->setShoot(enable);
 }
 
-void Entity::onHit()
+void Entity::onHit(float direction)
 {
     m_hp--;
+    applyRecoil(direction);
 }
 
 sf::Sprite& Entity::getSprite()
@@ -299,4 +300,9 @@ void Entity::doMustacheThing()
             setDirections(Direction::RIGHT);
         m_didCollide = false;
     }
+}
+
+void Entity::applyRecoil(float direction)
+{
+    m_velocity.x = m_maxSpeed * direction;
 }

@@ -30,7 +30,7 @@ public:
     void deleteGun();
     void shoot(bool enable = true);
 
-    void onHit();
+    void onHit(float direction);
 
     void setPos(float x, float y);
     void setPos(sf::Vector2f pos);
@@ -104,4 +104,8 @@ private:
     void updateSprite();
     //Process mustache IA behaviour.
     void doMustacheThing();
+
+    void applyRecoil(float direction);
+
+    friend Gun;
 };

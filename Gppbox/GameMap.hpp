@@ -5,7 +5,7 @@
 #include "C.hpp"
 
 constexpr int CELL_SIZE = 32;
-constexpr int WALL_COLOR = 0x07ff07ff;
+constexpr int WALL_COLOR = 0x666666ff;
 
 /**
  * @class CellType
