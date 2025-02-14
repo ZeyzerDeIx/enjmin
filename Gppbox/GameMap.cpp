@@ -38,14 +38,10 @@ bool GameMap::collide(sf::FloatRect bounds)
 	for (auto& cell : m_cells)
 	{
 		sf::FloatRect cellBounds = cell.sprite.getGlobalBounds();
-		if (((bounds.left + bounds.width >= cellBounds.left and
-			  bounds.left + bounds.width <= cellBounds.left + cellBounds.width) or
-			 (bounds.left >= cellBounds.left and
-			  bounds.left <= cellBounds.left + cellBounds.width)) and
-			((bounds.top + bounds.height >= cellBounds.top and
-			  bounds.top + bounds.height <= cellBounds.top + cellBounds.height) or
-			 (bounds.top >= cellBounds.top and
-			  bounds.top <= cellBounds.top + cellBounds.height)))
+		if (std::abs(bounds.top - cellBounds.top) > CELL_SIZE * 2 or
+			std::abs(bounds.left - cellBounds.left) > CELL_SIZE * 2)
+			continue;
+		if (bounds.intersects(cellBounds))
 			return true;
 	}
 	return false;

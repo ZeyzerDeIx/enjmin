@@ -45,16 +45,7 @@ bool Projectile::collideWith(Entity& entity)
 {
     auto bounds = m_sprite.getGlobalBounds();
     auto entityBounds = entity.getSprite().getGlobalBounds();
-    if (((bounds.left + bounds.width >= entityBounds.left and
-          bounds.left + bounds.width <= entityBounds.left + entityBounds.width) or
-         (bounds.left >= entityBounds.left and
-          bounds.left <= entityBounds.left + entityBounds.width)) and
-        ((bounds.top + bounds.height >= entityBounds.top and
-          bounds.top + bounds.height <= entityBounds.top + entityBounds.height) or
-         (bounds.top >= entityBounds.top and
-          bounds.top <= entityBounds.top + entityBounds.height)))
-        return true;
-    return false;
+    return bounds.intersects(entityBounds);
 }
 
 bool Projectile::getToDestroy()
