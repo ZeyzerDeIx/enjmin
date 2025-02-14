@@ -33,6 +33,7 @@ private:
 	bool m_ctrl;
 	bool m_leftClick;
 	bool m_rightClick;
+	bool m_rightTrigger;
 	uint8_t m_joystickDirections;
 };
 

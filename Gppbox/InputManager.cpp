@@ -13,6 +13,7 @@ InputManager::InputManager() :
 	m_ctrl(false),
 	m_leftClick(false),
 	m_rightClick(false),
+	m_rightTrigger(false),
 	m_joystickDirections(0)
 {}
 
@@ -24,6 +25,7 @@ InputManager::InputManager(Entity* player, Camera* camera, GameMap* gameMap):
 	m_ctrl(false),
 	m_leftClick(false),
 	m_rightClick(false),
+	m_rightTrigger(false),
 	m_joystickDirections(0)
 {}
 
@@ -100,6 +102,17 @@ void InputManager::processJoystick()
 
 	if (sf::Joystick::isButtonPressed(0, 0))
 		m_player->jump();
+
+	if (m_rightTrigger and sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Z) >= -10)
+	{
+		m_rightTrigger = false;
+		m_player->shoot(false);
+	}
+	if (!m_rightTrigger and sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Z) < -10)
+	{
+		m_rightTrigger = true;
+		m_player->shoot();
+	}
 }
 
 void InputManager::processKeyPressed(sf::Keyboard::Key key)
