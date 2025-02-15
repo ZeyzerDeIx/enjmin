@@ -17,6 +17,7 @@ Game::Game(sf::RenderWindow * win):
 {
 	this->win = win;
 	win->setKeyRepeatEnabled(false);
+	win->setFramerateLimit(240);
 	win->setVerticalSyncEnabled(true);
 	bg = sf::RectangleShape(Vector2f((float)win->getSize().x, (float)win->getSize().y));
 
@@ -160,7 +161,9 @@ sf::Sprite Game::createSprite(std::string spritePath)
 
 void Game::spawnEnemy(sf::Vector2f pos)
 {
-	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color{0xcc3300ff}));
+	sf::Sprite sprite = createSprite("Enemy.png");
+	sprite.setScale(0.03f, 0.03f);
+	m_entities.push_back(new Entity(std::move(sprite), &m_gameMap, sf::Color{0xcc3300ff}));
 	m_entities.back()->setPos(pos);
 	m_entities.back()->updateCooAndRatio();
 	m_entities.back()->updateSprite();

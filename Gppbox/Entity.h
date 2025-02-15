@@ -107,6 +107,8 @@ private:
     //Process mustache IA behaviour.
     void doMustacheThing();
 
+    void doThePhysicThings(double dt);
+
     void applyRecoil(float direction);
 
     friend Gun;

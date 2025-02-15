@@ -56,35 +56,7 @@ void Entity::update(double dt)
 
     if (m_gun) m_gun->setOrientation(m_directions);
 
-    //movement x
-    float sign = m_velocity.x >= 0 ? 1.f : -1.f;
-	for (float i = std::abs(m_velocity.x * dt); i > 0.f ; i -= CELL_SIZE)
-	{
-		updateCooAndRatio();
-        if (m_gameMap->hasCollision(m_coo.x + sign, m_coo.y))
-        {
-            m_ratio.x = sign == 1.f ? RATIO_THRESHOLD_X : 1.f - RATIO_THRESHOLD_X;
-            m_didCollide = true;
-			updatePos();
-			break;
-        }
-        m_pos.x += sign * (CELL_SIZE < i ? CELL_SIZE : i);
-	}
-	//movement y
-	sign = m_velocity.y >= 0 ? 1.f : -1.f;
-	if (m_isJumping and sign == 1.f) m_isJumping = false;
-	for (float i = std::abs(m_velocity.y * dt); i > 0.f; i -= CELL_SIZE)
-	{
-		updateCooAndRatio();
-		if (m_gameMap->hasCollision(m_coo.x, m_coo.y + sign))
-		{
-			m_ratio.y = sign == 1.f ? RATIO_THRESHOLD_Y : 1.f - RATIO_THRESHOLD_Y;
-            m_didCollide = true;
-			updatePos();
-			break;
-		}
-		m_pos.y += sign * (CELL_SIZE < i ? CELL_SIZE : i);
-	}
+    doThePhysicThings(dt);
     
     //braking
     if ((!(m_directions & Direction::RIGHT) or m_directions & Direction::LEFT) and m_velocity.x > 0.f)
@@ -220,7 +192,9 @@ bool Entity::isDead()
 
 bool Entity::isOnGround()
 {
-    return m_gameMap->hasCollision(m_coo.x, m_coo.y + 1);
+    sf::FloatRect bounds = m_sprite.getGlobalBounds();
+    bounds.top += 1; // Move the bounds slightly down to check for ground collision
+    return m_gameMap->collide(bounds);
 }
 
 bool Entity::im()
@@ -306,6 +280,49 @@ void Entity::doMustacheThing()
             setDirections(Direction::RIGHT);
         m_didCollide = false;
     }
+}
+
+void Entity::doThePhysicThings(double dt)
+{
+    enum class Axis{X,Y};
+    auto oneAxisPhysic = [&](Axis axis)
+    {
+        float& velocity = axis == Axis::X ? m_velocity.x : m_velocity.y;
+        float& pos = axis == Axis::X ? m_pos.x : m_pos.y;
+        if (velocity != 0.f)
+        {
+            int sign = velocity >= 0 ? 1 : -1;
+            int step = CELL_SIZE;
+            for (int i = std::abs(velocity * dt); i > 0; i -= step)
+            {
+                int offset = sign * (step < i ? step : i);
+                sf::Rect nextBounds = m_sprite.getGlobalBounds();
+                (axis == Axis::X ? nextBounds.left : nextBounds.top) += offset;
+                if (!m_gameMap->collide(nextBounds))
+                {
+                    pos += offset;
+                    updateSprite();
+                }
+                else if (step >= 2.f)
+                {
+                    i += step;
+                    step /= 2.f;
+                }
+                else
+                {
+                    m_didCollide = true;
+                    velocity = 0;
+                    break;
+                }
+            }
+        }
+    };
+
+    // Handle horizontal movement (left and right)
+    oneAxisPhysic(Axis::X);
+
+    // Handle vertical movement (up and down)
+    oneAxisPhysic(Axis::Y);
 }
 
 void Entity::applyRecoil(float direction)
