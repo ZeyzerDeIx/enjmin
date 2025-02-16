@@ -78,10 +78,10 @@ void Entity::jump()
     }
 }
 
-void Entity::addGun(std::vector<Entity*>& entities, Camera* camera)
+void Entity::addGun(std::vector<Entity*>& entities, Camera* camera, sf::Sprite muzzleFireSprite)
 {
     if (m_gun == nullptr)
-        m_gun = new Gun(this, {8.f, -8.f}, entities, camera);
+        m_gun = new Gun(this, {8.f, -8.f}, entities, camera, muzzleFireSprite);
 }
 
 Gun* Entity::getGun()

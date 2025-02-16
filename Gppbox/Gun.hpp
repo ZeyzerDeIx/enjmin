@@ -26,7 +26,7 @@ private:
 class Gun
 {
 public:
-	Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera);
+	Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, sf::Sprite muzzleFireSprite);
 	void update(double dt, GameMap &gameMap);
 	void draw(sf::RenderWindow& win);
 	void setShoot(bool enable);
@@ -39,6 +39,7 @@ private:
 	std::vector<Entity*>& m_entities;
 	Camera* m_camera;
 	sf::RectangleShape m_sprite;
+	sf::Sprite m_muzzleFireSprite;
 	sf::Vector2f m_offset;
 	std::list<Projectile> m_projectils;
 	bool m_lookAtRight;

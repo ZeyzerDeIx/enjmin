@@ -28,7 +28,7 @@ Game::Game(sf::RenderWindow * win):
 	//bgShader = new HotReloadShader("res/bg.vert", "res/bg.frag");
 
 	m_entities.push_back(new Entity(createSprite("Player.png"), &m_gameMap, sf::Color{ 0x29a329ff }));
-	m_entities[0]->addGun(m_entities, &m_camera);
+	m_entities[0]->addGun(m_entities, &m_camera, createSprite("muzzleFire.png"));
 	m_inputManager.setPlayer(m_entities[0]);
 	m_inputManager.setCamera(&m_camera);
 	m_inputManager.setGameMap(&m_gameMap);

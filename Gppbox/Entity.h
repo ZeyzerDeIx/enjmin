@@ -26,7 +26,7 @@ public:
 	void draw(sf::RenderWindow& win);
     void jump();
 
-    void addGun(std::vector<Entity*>& entities, Camera* camera);
+    void addGun(std::vector<Entity*>& entities, Camera* camera, sf::Sprite muzzleFireSprite);
     Gun* getGun();
     void deleteGun();
     void shoot(bool enable = true);

@@ -53,11 +53,12 @@ bool Projectile::getToDestroy()
     return m_toDestroy;
 }
 
-Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera) :
+Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, sf::Sprite muzzleFireSprite) :
     m_entity(entity),
     m_entities(entities),
     m_camera(camera),
     m_sprite({ 20.f, 8.f }),
+    m_muzzleFireSprite(muzzleFireSprite),
     m_offset(offset),
     m_lookAtRight(true),
     m_shootEnabled(false),
@@ -66,6 +67,8 @@ Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Ca
 {
     m_sprite.setOrigin({ m_sprite.getGlobalBounds().width / 2.f, m_sprite.getGlobalBounds().height / 2.f });
     m_sprite.setPosition(m_entity->getPos() + m_offset);
+    m_muzzleFireSprite.setOrigin({0.f , m_muzzleFireSprite.getGlobalBounds().height / 2.f });
+    m_muzzleFireSprite.setScale({ 0.1f,0.1f });
 }
 
 void Gun::update(double dt, GameMap &gameMap)
@@ -101,11 +104,24 @@ void Gun::draw(sf::RenderWindow& win)
     win.draw(m_sprite);
     for (Projectile& projectil : m_projectils)
         projectil.draw(win);
+    if (m_shootTimer <= 0.05f and m_shootTimer != 0.f)
+    {
+
+        sf::Vector2f gunPos = m_sprite.getPosition();
+        sf::FloatRect gunBounds = m_sprite.getGlobalBounds();
+        sf::Vector2f muzzlePos(gunPos.x + gunBounds.width / 2 * (m_lookAtRight ? 1.f : -1.f), gunPos.y);
+
+        m_muzzleFireSprite.setPosition(muzzlePos);
+        m_muzzleFireSprite.setRotation(m_lookAtRight ? 0.f : 180.f);
+
+        win.draw(m_muzzleFireSprite);
+    }
 }
 
 void Gun::setShoot(bool enable)
 {
     if (m_shootEnabled = enable) m_shootTimer = 0.f;
+    else m_shootTimer = m_shootDelay;
 }
 
 void Gun::im()
