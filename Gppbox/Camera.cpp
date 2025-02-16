@@ -4,6 +4,8 @@
 
 #include <imgui.h>
 
+constexpr float PLAYER_MAX_DIST = 20.f;
+
 Camera::Camera(sf::RenderWindow* window) :
 	m_window(window),
 	m_entity(nullptr),
@@ -19,6 +21,8 @@ Camera::Camera(sf::RenderWindow* window) :
 		sf::Vector2f(((float)size.x) * m_zoomFactor, ((float)size.y) * m_zoomFactor));
 }
 
+static float sign(float x) { return x >= 0 ? 1.f : -1.f; }
+
 void Camera::update(double dt)
 {
 	if(m_editorMode)
@@ -30,7 +34,11 @@ void Camera::update(double dt)
 	}
 	else if (m_entity)
 	{
-		m_view.setCenter(m_entity->getPos());
+		sf::Vector2f playerDistance = m_entity->getPos() - m_view.getCenter();
+		if (std::abs(playerDistance.x) > PLAYER_MAX_DIST)
+			move(playerDistance.x - sign(playerDistance.x) * PLAYER_MAX_DIST, 0.f);
+		if (std::abs(playerDistance.y) > PLAYER_MAX_DIST)
+			move(0.f, playerDistance.y - sign(playerDistance.y) * PLAYER_MAX_DIST);
 		if(m_shakeDuration > 0.f) move(rand() % m_shakeIntensity, rand() % m_shakeIntensity);
 		m_window->setView(m_view);
 	}

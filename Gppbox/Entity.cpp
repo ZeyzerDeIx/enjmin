@@ -57,19 +57,6 @@ void Entity::update(double dt)
     if (m_gun) m_gun->setOrientation(m_directions);
 
     doThePhysicThings(dt);
-    
-    //braking
-    if ((!(m_directions & Direction::RIGHT) or m_directions & Direction::LEFT) and m_velocity.x > 0.f)
-    {
-        m_velocity.x -= m_brakingSpeed * dt;
-        if (m_velocity.x < 0.f) m_velocity.x = 0.f;
-    }
-    if ((!(m_directions & Direction::LEFT) or m_directions & Direction::RIGHT) and m_velocity.x < 0.f)
-    {
-        m_velocity.x += m_brakingSpeed * dt;
-        if (m_velocity.x > 0.f) m_velocity.x = 0.f;
-    }
-
 	
 	updateSprite();
 
@@ -323,6 +310,18 @@ void Entity::doThePhysicThings(double dt)
 
     // Handle vertical movement (up and down)
     oneAxisPhysic(Axis::Y);
+
+    //braking
+    if ((!(m_directions & Direction::RIGHT) or m_directions & Direction::LEFT) and m_velocity.x > 0.f)
+    {
+        m_velocity.x -= m_brakingSpeed * dt;
+        if (m_velocity.x < 0.f) m_velocity.x = 0.f;
+    }
+    if ((!(m_directions & Direction::LEFT) or m_directions & Direction::RIGHT) and m_velocity.x < 0.f)
+    {
+        m_velocity.x += m_brakingSpeed * dt;
+        if (m_velocity.x > 0.f) m_velocity.x = 0.f;
+    }
 }
 
 void Entity::applyRecoil(float direction)
