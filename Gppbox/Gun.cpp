@@ -3,9 +3,10 @@
 
 #include "Gun.hpp"
 #include "Camera.h"
+#include "Game.hpp"
 
-Projectile::Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities):
-    m_sprite(7.f),
+Projectile::Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities, Game* game):
+    m_sprite(game->createSprite("Bullet.png")),
 	m_velocity(velocity),
     m_entities(entities),
     m_toDestroy(false)
@@ -53,12 +54,13 @@ bool Projectile::getToDestroy()
     return m_toDestroy;
 }
 
-Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, sf::Sprite muzzleFireSprite) :
+Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, Game* game) :
     m_entity(entity),
+	m_game(game),
     m_entities(entities),
     m_camera(camera),
     m_sprite({ 20.f, 8.f }),
-    m_muzzleFireSprite(muzzleFireSprite),
+    m_muzzleFireSprite(game->createSprite("muzzleFire.png")),
     m_offset(offset),
     m_lookAtRight(true),
     m_shootEnabled(false),
@@ -92,7 +94,7 @@ void Gun::shoot()
     sf::Vector2f gunPos = m_sprite.getPosition();
     sf::FloatRect gunBounds = m_sprite.getGlobalBounds();
     sf::Vector2f spawnPos(gunPos.x + gunBounds.width/2 * (m_lookAtRight ? 1.f : -1.f), gunPos.y);
-    Projectile newProjectile(spawnPos, {600.f * (m_lookAtRight? 1.f : -1.f), 0.f}, m_entities);
+    Projectile newProjectile(spawnPos, {1200.f * (m_lookAtRight? 1.f : -1.f), 0.f}, m_entities, m_game);
     m_projectils.push_back(newProjectile);
     m_shootTimer = m_shootDelay;
     m_camera->triggerScreenShake(4, 0.2f);
@@ -106,7 +108,6 @@ void Gun::draw(sf::RenderWindow& win)
         projectil.draw(win);
     if (m_shootTimer <= 0.05f and m_shootTimer != 0.f)
     {
-
         sf::Vector2f gunPos = m_sprite.getPosition();
         sf::FloatRect gunBounds = m_sprite.getGlobalBounds();
         sf::Vector2f muzzlePos(gunPos.x + gunBounds.width / 2 * (m_lookAtRight ? 1.f : -1.f), gunPos.y);
@@ -131,7 +132,7 @@ void Gun::im()
     {
         Value("PosX: ", m_sprite.getPosition().x);
         Value("PosY: ", m_sprite.getPosition().y);
-        Text("There is %i projectiles.", m_projectils.size());
+        ImGui::Text("There is %i projectiles.", m_projectils.size());
         DragFloat2("Offset", &m_offset.x);
     }
 }
@@ -149,4 +150,34 @@ void Gun::setOrientation(uint8_t orientation)
 sf::RectangleShape& Gun::getSprite()
 {
     return m_sprite;
+}
+
+void HomingMissile::update(double dt, GameMap& gameMap, Gun& gun)
+{
+	sf::Vector2f pos = m_sprite.getPosition();
+	sf::Vector2f targetPos = acquiresTargetPos();
+	sf::Vector2f direction = targetPos - pos;
+	float norm = sqrt(direction.x * direction.x + direction.y * direction.y);
+	direction.x /= norm;
+	direction.y /= norm;
+	pos.x += direction.x * 600.f * dt;
+	pos.y += direction.y * 600.f * dt;
+	m_sprite.setPosition(pos);
+    m_sprite.setRotation(atan2(direction.y, direction.x) * 180.f / 3.14159265f);
+	float sign = direction.x > 0 ? 1.f : -1.f;
+	sf::Vector2i coo{
+		(int)pos.x / CELL_SIZE - (pos.x < 0),
+		(int)pos.y / CELL_SIZE - (pos.x < 0)
+	};
+	sf::Vector2i caseToCehck{ coo.x + (int)sign, coo.y };
+	if (gameMap.collide(m_sprite.getGlobalBounds()) or abs(gun.getSprite().getPosition().x - pos.x) > 600)
+		m_toDestroy = true;
+	for (auto& entity : m_entities)
+		if (collideWith(*entity) and (m_toDestroy = true))
+			entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f);
+}
+
+sf::Vector2f HomingMissile::acquiresTargetPos()
+{
+    return sf::Vector2f();
 }

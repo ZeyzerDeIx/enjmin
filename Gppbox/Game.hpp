@@ -41,6 +41,7 @@ public:
 
 	void draw(sf::RenderWindow& win);
 	void im();
+	sf::Sprite createSprite(std::string spritePath);
 
 private:
 	GameMap m_gameMap;
@@ -54,7 +55,6 @@ private:
 	int m_lastFPSUpdateElpasedFrame;
 	bool m_editorMode;
 
-	sf::Sprite createSprite(std::string spritePath);
 	void spawnEnemy(sf::Vector2f pos);
 	void deleteEnemy(sf::Vector2f pos);
 	void loadEnemies();

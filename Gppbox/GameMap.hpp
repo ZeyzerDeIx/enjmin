@@ -24,7 +24,7 @@ enum class CellType
  */
 struct Cell
 {
-	CellType type;
+	CellType type = CellType::Void;
 	sf::Vector2i coo;
 	sf::RectangleShape sprite;
 

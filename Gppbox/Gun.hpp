@@ -10,23 +10,30 @@ class Camera;
 class Projectile
 {
 public:
-	Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities);
-	void update(double dt, GameMap &gameMap, Gun& gun);
+	Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities, Game* game);
+	virtual void update(double dt, GameMap &gameMap, Gun& gun);
 	void draw(sf::RenderWindow& win);
 	bool collideWith(Entity& entity);
 
 	bool getToDestroy();
-private:
-	sf::CircleShape m_sprite;
+protected:
+	sf::Sprite m_sprite;
 	sf::Vector2f m_velocity;
 	std::vector<Entity*>& m_entities;
 	bool m_toDestroy;
 };
 
+class HomingMissile : public Projectile
+{
+public:
+	void update(double dt, GameMap& gameMap, Gun& gun);
+	sf::Vector2f acquiresTargetPos();
+};
+
 class Gun
 {
 public:
-	Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, sf::Sprite muzzleFireSprite);
+	Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, Game* game);
 	void update(double dt, GameMap &gameMap);
 	void draw(sf::RenderWindow& win);
 	void setShoot(bool enable);
@@ -36,6 +43,7 @@ public:
 	sf::RectangleShape& getSprite();
 private:
 	Entity* m_entity;
+	Game* m_game;
 	std::vector<Entity*>& m_entities;
 	Camera* m_camera;
 	sf::RectangleShape m_sprite;

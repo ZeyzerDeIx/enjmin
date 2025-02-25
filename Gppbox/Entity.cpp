@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "TextureManager.hpp"
 #include "Gun.hpp"
+#include "Game.hpp"
 
 
 constexpr float RATIO_THRESHOLD_X = 0.7f;
@@ -78,10 +79,10 @@ void Entity::jump()
     }
 }
 
-void Entity::addGun(std::vector<Entity*>& entities, Camera* camera, sf::Sprite muzzleFireSprite)
+void Entity::addGun(std::vector<Entity*>& entities, Camera* camera, Game* game)
 {
     if (m_gun == nullptr)
-        m_gun = new Gun(this, {8.f, -8.f}, entities, camera, muzzleFireSprite);
+        m_gun = new Gun(this, {8.f, -8.f}, entities, camera, game);
 }
 
 Gun* Entity::getGun()
@@ -203,12 +204,12 @@ bool Entity::im()
         if (m_directions & Direction::DOWN) dir += "DOWN ";
         if (m_directions & Direction::LEFT) dir += "LEFT ";
         if (m_directions & Direction::RIGHT) dir += "RIGHT ";
-        Text(dir.c_str());
+        ImGui::Text(dir.c_str());
 
 		std::string states = "States: ";
 		if (m_isJumping) states += "JUMP ";
 		if (isOnGround()) states += "OnGround ";
-		Text(states.c_str());
+        ImGui::Text(states.c_str());
 
         if (posChanged) updateCooAndRatio();
 
