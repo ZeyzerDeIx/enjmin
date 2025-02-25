@@ -14,6 +14,7 @@ Projectile::Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector
     auto bounds = m_sprite.getGlobalBounds();
     m_sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
     m_sprite.setPosition(position);
+	m_sprite.setRotation(velocity.x >= 0.f ? 0.f : 180.f);
 }
 
 void Projectile::update(double dt, GameMap &gameMap, Gun& gun)
@@ -23,17 +24,11 @@ void Projectile::update(double dt, GameMap &gameMap, Gun& gun)
     pos.y += m_velocity.y * dt;
     m_sprite.setPosition(pos);
 
-    float sign = m_velocity.x > 0 ? 1.f : -1.f;
-    sf::Vector2i coo{
-        (int)pos.x / CELL_SIZE - (pos.x < 0),
-        (int)pos.y / CELL_SIZE - (pos.x < 0)
-    };
-    sf::Vector2i caseToCehck{ coo.x + (int)sign, coo.y };
     if (gameMap.collide(m_sprite.getGlobalBounds()) or abs(gun.getSprite().getPosition().x - pos.x) > 600)
         m_toDestroy = true;
 
     for (auto& entity : m_entities)
-        if (collideWith(*entity) and (m_toDestroy = true))
+        if (collideWith(*entity) and !entity->isPlayer() and (m_toDestroy = true))
             entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f);
 }
 
@@ -49,7 +44,7 @@ bool Projectile::collideWith(Entity& entity)
     return bounds.intersects(entityBounds);
 }
 
-bool Projectile::getToDestroy()
+bool Projectile::getToDestroy() const
 {
     return m_toDestroy;
 }
@@ -73,17 +68,27 @@ Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Ca
     m_muzzleFireSprite.setScale({ 0.1f,0.1f });
 }
 
+Gun::~Gun()
+{
+	for (Projectile* projectile : m_projectils)
+		delete projectile;
+}
+
 void Gun::update(double dt, GameMap &gameMap)
 {
     for (auto it = m_projectils.begin(); it != m_projectils.end();)
     {
-        if (it->getToDestroy()) it = m_projectils.erase(it);
+        if ((*it)->getToDestroy())
+        {
+            delete *it;
+            it = m_projectils.erase(it);
+        }
         else ++it;
     }
 
     m_sprite.setPosition(m_entity->getPos() + m_offset);
-    for (auto& projectile : m_projectils)
-        projectile.update(dt, gameMap, *this);
+    for (Projectile* projectile : m_projectils)
+        projectile->update(dt, gameMap, *this);
 
     if (m_shootEnabled and (m_shootTimer -= dt) <= 0.f)
         shoot();
@@ -94,7 +99,7 @@ void Gun::shoot()
     sf::Vector2f gunPos = m_sprite.getPosition();
     sf::FloatRect gunBounds = m_sprite.getGlobalBounds();
     sf::Vector2f spawnPos(gunPos.x + gunBounds.width/2 * (m_lookAtRight ? 1.f : -1.f), gunPos.y);
-    Projectile newProjectile(spawnPos, {1200.f * (m_lookAtRight? 1.f : -1.f), 0.f}, m_entities, m_game);
+    Projectile* newProjectile = new Projectile(spawnPos, {1200.f * (m_lookAtRight? 1.f : -1.f), 0.f}, m_entities, m_game);
     m_projectils.push_back(newProjectile);
     m_shootTimer = m_shootDelay;
     m_camera->triggerScreenShake(4, 0.2f);
@@ -104,8 +109,8 @@ void Gun::shoot()
 void Gun::draw(sf::RenderWindow& win)
 {
     win.draw(m_sprite);
-    for (Projectile& projectil : m_projectils)
-        projectil.draw(win);
+    for (Projectile* projectil : m_projectils)
+        projectil->draw(win);
     if (m_shootTimer <= 0.05f and m_shootTimer != 0.f)
     {
         sf::Vector2f gunPos = m_sprite.getPosition();
@@ -123,6 +128,12 @@ void Gun::setShoot(bool enable)
 {
     if (m_shootEnabled = enable) m_shootTimer = 0.f;
     else m_shootTimer = m_shootDelay;
+}
+
+void Gun::launchMissile(sf::Vector2f playerPos)
+{
+    sf::Vector2f spawnPos(playerPos.x, playerPos.y - 60.f);
+	m_projectils.push_back(new HomingMissile(spawnPos, { 200.f, 0.f }, m_entities, m_game));
 }
 
 void Gun::im()
@@ -160,24 +171,39 @@ void HomingMissile::update(double dt, GameMap& gameMap, Gun& gun)
 	float norm = sqrt(direction.x * direction.x + direction.y * direction.y);
 	direction.x /= norm;
 	direction.y /= norm;
-	pos.x += direction.x * 600.f * dt;
-	pos.y += direction.y * 600.f * dt;
+	pos.x += direction.x * m_velocity.x * dt;
+	pos.y += direction.y * m_velocity.x * dt;
 	m_sprite.setPosition(pos);
     m_sprite.setRotation(atan2(direction.y, direction.x) * 180.f / 3.14159265f);
-	float sign = direction.x > 0 ? 1.f : -1.f;
-	sf::Vector2i coo{
-		(int)pos.x / CELL_SIZE - (pos.x < 0),
-		(int)pos.y / CELL_SIZE - (pos.x < 0)
-	};
-	sf::Vector2i caseToCehck{ coo.x + (int)sign, coo.y };
 	if (gameMap.collide(m_sprite.getGlobalBounds()) or abs(gun.getSprite().getPosition().x - pos.x) > 600)
 		m_toDestroy = true;
 	for (auto& entity : m_entities)
-		if (collideWith(*entity) and (m_toDestroy = true))
+		if (collideWith(*entity) and !entity->isPlayer() and (m_toDestroy = true))
 			entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f);
 }
 
 sf::Vector2f HomingMissile::acquiresTargetPos()
 {
-    return sf::Vector2f();
+   sf::Vector2f currentPos = m_sprite.getPosition();
+   sf::Vector2f closestPos;
+   float minDistance = std::numeric_limits<float>::max();
+
+   for (auto& entity : m_entities)
+   {
+       if (entity != nullptr && entity != m_entities[0])
+       {
+           sf::Vector2f entityPos = entity->getPos();
+           float distance = std::sqrt(std::pow(entityPos.x - currentPos.x, 2) + std::pow(entityPos.y - currentPos.y, 2));
+
+           if (distance < minDistance)
+           {
+               minDistance = distance;
+               closestPos = entityPos;
+           }
+       }
+   }
+   if (closestPos == sf::Vector2f(0, 0))
+	   m_toDestroy = true;
+
+   return closestPos;
 }

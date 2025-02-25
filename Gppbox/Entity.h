@@ -30,6 +30,7 @@ public:
     Gun* getGun();
     void deleteGun();
     void shoot(bool enable = true);
+	void launchMissile();
 
     void onHit(float direction);
 
@@ -49,6 +50,7 @@ public:
 	const sf::Vector2i& getCoo();
 	bool getDirection(uint8_t direction);
     bool isDead();
+    bool isPlayer();
     sf::Sprite& getSprite();
 
 	/**

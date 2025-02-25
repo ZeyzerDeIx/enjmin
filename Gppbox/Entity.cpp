@@ -100,8 +100,14 @@ void Entity::shoot(bool enable)
     if (m_gun) m_gun->setShoot(enable);
 }
 
+void Entity::launchMissile()
+{
+	if (m_gun) m_gun->launchMissile(m_pos);
+}
+
 void Entity::onHit(float direction)
 {
+    if (isPlayer()) return;
     m_hp--;
     applyRecoil(direction);
 }
@@ -176,6 +182,11 @@ bool Entity::getDirection(uint8_t direction)
 bool Entity::isDead()
 {
     return m_hp <= 0;
+}
+
+bool Entity::isPlayer()
+{
+    return m_gun != nullptr;
 }
 
 bool Entity::isOnGround()

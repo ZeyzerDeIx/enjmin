@@ -15,7 +15,7 @@ public:
 	void draw(sf::RenderWindow& win);
 	bool collideWith(Entity& entity);
 
-	bool getToDestroy();
+	bool getToDestroy() const;
 protected:
 	sf::Sprite m_sprite;
 	sf::Vector2f m_velocity;
@@ -26,6 +26,7 @@ protected:
 class HomingMissile : public Projectile
 {
 public:
+	using Projectile::Projectile;
 	void update(double dt, GameMap& gameMap, Gun& gun);
 	sf::Vector2f acquiresTargetPos();
 };
@@ -34,9 +35,11 @@ class Gun
 {
 public:
 	Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, Game* game);
+	~Gun();
 	void update(double dt, GameMap &gameMap);
 	void draw(sf::RenderWindow& win);
 	void setShoot(bool enable);
+	void launchMissile(sf::Vector2f playerPos);
 	void im();
 	void setOrientation(uint8_t orientation);
 
@@ -49,7 +52,7 @@ private:
 	sf::RectangleShape m_sprite;
 	sf::Sprite m_muzzleFireSprite;
 	sf::Vector2f m_offset;
-	std::list<Projectile> m_projectils;
+	std::list<Projectile*> m_projectils;
 	bool m_lookAtRight;
 	bool m_shootEnabled;
 	float m_shootDelay;
