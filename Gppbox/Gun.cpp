@@ -52,7 +52,7 @@ void Projectile::checkCollision(sf::Vector2f& pos, GameMap& gameMap, Gun& gun, b
 
     for (auto& entity : m_entities)
         if (collideWith(*entity) and !entity->isPlayer() and (m_toDestroy = true))
-            entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f);
+            entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f, isMissile ? 100 : 1);
 }
 
 Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, Game* game) :
@@ -66,7 +66,9 @@ Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Ca
     m_lookAtRight(true),
     m_shootEnabled(false),
     m_shootDelay(0.083f),
-    m_shootTimer(0.f)
+    m_shootTimer(0.f),
+	m_missileLaunchDelay(0.75f),
+	m_missileLaunchTimer(0.f)
 {
     m_sprite.setOrigin({ m_sprite.getGlobalBounds().width / 2.f, m_sprite.getGlobalBounds().height / 2.f });
     m_sprite.setPosition(m_entity->getPos() + m_offset);
@@ -98,6 +100,8 @@ void Gun::update(double dt, GameMap &gameMap)
 
     if (m_shootEnabled and (m_shootTimer -= dt) <= 0.f)
         shoot();
+
+    m_missileLaunchTimer -= dt;
 }
 
 void Gun::shoot()
@@ -138,6 +142,8 @@ void Gun::setShoot(bool enable)
 
 void Gun::launchMissile(sf::Vector2f playerPos)
 {
+    if ((m_missileLaunchTimer) > 0.f) return;
+	m_missileLaunchTimer = m_missileLaunchDelay;
     sf::Vector2f spawnPos(playerPos.x, playerPos.y - 60.f);
 	m_projectils.push_back(new HomingMissile(spawnPos, { 600.f, 0.f }, m_entities, m_game));
 }
@@ -187,7 +193,7 @@ void HomingMissile::update(double dt, GameMap& gameMap, Gun& gun)
 	pos.x += direction.x * m_velocity.x * dt;
 	pos.y += direction.y * m_velocity.x * dt;
 
-	if(m_velocity.x > 200.f) m_velocity.x -= dt;
+	if(m_velocity.x > 200.f) m_velocity.x -= 200.f * dt;
 
 	m_sprite.setPosition(pos);
     m_sprite.setRotation(atan2(direction.y, direction.x) * 180.f / 3.14159265f);

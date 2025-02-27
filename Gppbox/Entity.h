@@ -32,7 +32,7 @@ public:
     void shoot(bool enable = true);
 	void launchMissile();
 
-    void onHit(float direction);
+    void onHit(float direction, int damages = 1);
 
     void setPos(float x, float y);
     void setPos(sf::Vector2f pos);

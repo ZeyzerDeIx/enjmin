@@ -62,6 +62,8 @@ private:
 	bool m_shootEnabled;
 	float m_shootDelay;
 	float m_shootTimer;
+	float m_missileLaunchDelay;
+	float m_missileLaunchTimer;
 	void shoot();
 };
 

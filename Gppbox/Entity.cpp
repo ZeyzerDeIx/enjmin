@@ -21,7 +21,7 @@ Entity::Entity(sf::Sprite sprite, GameMap* gameMap, sf::Color color) :
     m_jumpForce(1400.f),
     m_brakingSpeed(10000.f),
     m_directions(0b00000000),
-    m_hp(3),
+    m_hp(30),
     m_isJumping(false),
     m_hasAMustache(false),
     m_didCollide(true),
@@ -105,10 +105,10 @@ void Entity::launchMissile()
 	if (m_gun) m_gun->launchMissile(m_pos);
 }
 
-void Entity::onHit(float direction)
+void Entity::onHit(float direction, int damages)
 {
     if (isPlayer()) return;
-    m_hp--;
+    m_hp -= damages;
     applyRecoil(direction);
 }
 
