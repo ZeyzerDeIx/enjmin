@@ -105,6 +105,11 @@ void Entity::launchMissile()
 	if (m_gun) m_gun->launchMissile(m_pos);
 }
 
+void Entity::triggerLaser()
+{
+	if (m_gun) m_gun->amFirinMaLazerBOOOOOOM();
+}
+
 void Entity::onHit(float direction, int damages)
 {
     if (isPlayer()) return;
@@ -338,5 +343,13 @@ void Entity::doThePhysicThings(double dt)
 
 void Entity::applyRecoil(float direction)
 {
+    if (std::abs(direction) > 1.f)
+    {
+        if (isOnGround())
+        {
+            m_velocity.y = -m_jumpForce/2;
+            m_isJumping = true;
+        }
+    }
     m_velocity.x = m_maxSpeed * direction;
 }

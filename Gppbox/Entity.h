@@ -31,6 +31,7 @@ public:
     void deleteGun();
     void shoot(bool enable = true);
 	void launchMissile();
+	void triggerLaser();
 
     void onHit(float direction, int damages = 1);
 

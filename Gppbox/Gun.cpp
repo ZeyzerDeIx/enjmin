@@ -51,8 +51,12 @@ void Projectile::checkCollision(sf::Vector2f& pos, GameMap& gameMap, Gun& gun, b
         m_toDestroy = true;
 
     for (auto& entity : m_entities)
-        if (collideWith(*entity) and !entity->isPlayer() and (m_toDestroy = true))
-            entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f, isMissile ? 100 : 1);
+        if (collideWith(*entity) and !entity->isPlayer())
+        {
+            m_toDestroy = true;
+            entity->onHit((m_velocity.x >= 0.f ? 1.f : -1.f) * (isMissile ? 500.f : 1.f), isMissile ? 15 : 1);
+			gun.getCamera().triggerScreenShake(8, 0.1f);
+        }
 }
 
 Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, Game* game) :
@@ -62,18 +66,22 @@ Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Ca
     m_camera(camera),
     m_sprite({ 20.f, 8.f }),
     m_muzzleFireSprite(game->createSprite("muzzleFire.png")),
+    m_laser({ 2000.f, 10.f }),
     m_offset(offset),
     m_lookAtRight(true),
     m_shootEnabled(false),
     m_shootDelay(0.083f),
     m_shootTimer(0.f),
 	m_missileLaunchDelay(0.75f),
-	m_missileLaunchTimer(0.f)
+	m_missileLaunchTimer(0.f),
+	m_laserDuration(0.1f),
+	m_laserTimer(0.f)
 {
     m_sprite.setOrigin({ m_sprite.getGlobalBounds().width / 2.f, m_sprite.getGlobalBounds().height / 2.f });
     m_sprite.setPosition(m_entity->getPos() + m_offset);
     m_muzzleFireSprite.setOrigin({0.f , m_muzzleFireSprite.getGlobalBounds().height / 2.f });
     m_muzzleFireSprite.setScale({ 0.1f,0.1f });
+    m_laser.setFillColor(sf::Color::Red);
 }
 
 Gun::~Gun()
@@ -92,6 +100,20 @@ void Gun::update(double dt, GameMap &gameMap)
             it = m_projectils.erase(it);
         }
         else ++it;
+    }
+
+    if (m_laserTimer > 0.f)
+    {
+        for (auto& entity : m_entities)
+        {
+            if (entity != nullptr && !entity->isPlayer())
+            {
+                sf::FloatRect entityBounds = entity->getSprite().getGlobalBounds();
+                if (m_laser.getGlobalBounds().intersects(entityBounds))
+                    entity->onHit(m_lookAtRight ? 1.f : -1.f, 100); // High damage to kill the entity
+            }
+        }
+        m_laserTimer -= dt;
     }
 
     m_sprite.setPosition(m_entity->getPos() + m_offset);
@@ -132,6 +154,9 @@ void Gun::draw(sf::RenderWindow& win)
 
         win.draw(m_muzzleFireSprite);
     }
+
+	if (m_laserTimer > 0.f)
+		win.draw(m_laser);
 }
 
 void Gun::setShoot(bool enable)
@@ -146,6 +171,24 @@ void Gun::launchMissile(sf::Vector2f playerPos)
 	m_missileLaunchTimer = m_missileLaunchDelay;
     sf::Vector2f spawnPos(playerPos.x, playerPos.y - 60.f);
 	m_projectils.push_back(new HomingMissile(spawnPos, { 600.f, 0.f }, m_entities, m_game));
+
+    m_camera->triggerScreenShake(6, 0.3f);
+}
+
+void Gun::amFirinMaLazerBOOOOOOM()
+{
+	if (m_laserTimer > 0.f) return;
+
+    sf::Vector2f gunPos = m_sprite.getPosition();
+    sf::FloatRect gunBounds = m_sprite.getGlobalBounds();
+    sf::Vector2f lazerPos(gunPos.x + gunBounds.width / 2 * (m_lookAtRight ? 1.f : -1.f), gunPos.y);
+
+    m_laser.setPosition(lazerPos);
+    m_laser.setRotation(m_lookAtRight ? 0.f : 180.f);
+
+	m_laserTimer = m_laserDuration;
+
+    m_camera->triggerScreenShake(10, 0.5f); // Strong screen shake effect
 }
 
 void Gun::im()
@@ -168,6 +211,11 @@ void Gun::setOrientation(uint8_t orientation)
         m_offset.x = -m_offset.x;
         m_lookAtRight = !m_lookAtRight;
     }
+}
+
+Camera& Gun::getCamera()
+{
+	return *m_camera;
 }
 
 sf::RectangleShape& Gun::getSprite()

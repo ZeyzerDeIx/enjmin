@@ -143,6 +143,9 @@ void InputManager::processKeyPressed(sf::Keyboard::Key key)
 			if (m_ctrl) m_camera->setEditorMode(!editorMode);
 			else m_player->launchMissile();
 			break;
+		case sf::Keyboard::A:
+			m_player->triggerLaser();
+			break;
 		case sf::Keyboard::Space:
 			if (!editorMode) m_player->jump();
 			break;

@@ -45,8 +45,10 @@ public:
 	void draw(sf::RenderWindow& win);
 	void setShoot(bool enable);
 	void launchMissile(sf::Vector2f playerPos);
+	void amFirinMaLazerBOOOOOOM();
 	void im();
 	void setOrientation(uint8_t orientation);
+	Camera& getCamera();
 
 	sf::RectangleShape& getSprite();
 private:
@@ -56,6 +58,7 @@ private:
 	Camera* m_camera;
 	sf::RectangleShape m_sprite;
 	sf::Sprite m_muzzleFireSprite;
+	sf::RectangleShape m_laser;
 	sf::Vector2f m_offset;
 	std::list<Projectile*> m_projectils;
 	bool m_lookAtRight;
@@ -64,6 +67,8 @@ private:
 	float m_shootTimer;
 	float m_missileLaunchDelay;
 	float m_missileLaunchTimer;
+	float m_laserDuration;
+	float m_laserTimer;
 	void shoot();
 };
 
