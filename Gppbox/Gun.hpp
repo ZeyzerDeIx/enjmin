@@ -10,7 +10,7 @@ class Camera;
 class Projectile
 {
 public:
-	Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities, Game* game);
+	Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities, Game* game, std::string spriteLocation = "Bullet.png");
 	virtual void update(double dt, GameMap &gameMap, Gun& gun);
 	void draw(sf::RenderWindow& win);
 	bool collideWith(Entity& entity);
@@ -21,14 +21,19 @@ protected:
 	sf::Vector2f m_velocity;
 	std::vector<Entity*>& m_entities;
 	bool m_toDestroy;
+
+	void checkCollision(sf::Vector2f& pos, GameMap& gameMap, Gun& gun, bool isMissile = false);
 };
 
 class HomingMissile : public Projectile
 {
 public:
-	using Projectile::Projectile;
+	HomingMissile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities, Game* game);
 	void update(double dt, GameMap& gameMap, Gun& gun);
 	sf::Vector2f acquiresTargetPos();
+
+private:
+	sf::Vector2f m_launchTargetPos;
 };
 
 class Gun

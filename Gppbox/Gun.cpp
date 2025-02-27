@@ -5,8 +5,8 @@
 #include "Camera.h"
 #include "Game.hpp"
 
-Projectile::Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities, Game* game):
-    m_sprite(game->createSprite("Bullet.png")),
+Projectile::Projectile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities, Game* game, std::string spriteLocation):
+    m_sprite(game->createSprite(spriteLocation)),
 	m_velocity(velocity),
     m_entities(entities),
     m_toDestroy(false)
@@ -24,16 +24,12 @@ void Projectile::update(double dt, GameMap &gameMap, Gun& gun)
     pos.y += m_velocity.y * dt;
     m_sprite.setPosition(pos);
 
-    if (gameMap.collide(m_sprite.getGlobalBounds()) or abs(gun.getSprite().getPosition().x - pos.x) > 600)
-        m_toDestroy = true;
-
-    for (auto& entity : m_entities)
-        if (collideWith(*entity) and !entity->isPlayer() and (m_toDestroy = true))
-            entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f);
+	checkCollision(pos, gameMap, gun);
 }
 
 void Projectile::draw(sf::RenderWindow& win)
 {
+	if (m_toDestroy) return;
     win.draw(m_sprite);
 }
 
@@ -47,6 +43,16 @@ bool Projectile::collideWith(Entity& entity)
 bool Projectile::getToDestroy() const
 {
     return m_toDestroy;
+}
+
+void Projectile::checkCollision(sf::Vector2f& pos, GameMap& gameMap, Gun& gun, bool isMissile)
+{
+    if ((gameMap.collide(m_sprite.getGlobalBounds()) and !isMissile) or abs(gun.getSprite().getPosition().x - pos.x) > 600)
+        m_toDestroy = true;
+
+    for (auto& entity : m_entities)
+        if (collideWith(*entity) and !entity->isPlayer() and (m_toDestroy = true))
+            entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f);
 }
 
 Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Camera* camera, Game* game) :
@@ -133,7 +139,7 @@ void Gun::setShoot(bool enable)
 void Gun::launchMissile(sf::Vector2f playerPos)
 {
     sf::Vector2f spawnPos(playerPos.x, playerPos.y - 60.f);
-	m_projectils.push_back(new HomingMissile(spawnPos, { 200.f, 0.f }, m_entities, m_game));
+	m_projectils.push_back(new HomingMissile(spawnPos, { 600.f, 0.f }, m_entities, m_game));
 }
 
 void Gun::im()
@@ -163,6 +169,13 @@ sf::RectangleShape& Gun::getSprite()
     return m_sprite;
 }
 
+HomingMissile::HomingMissile(sf::Vector2f position, sf::Vector2f velocity, std::vector<Entity*>& entities, Game* game):
+	Projectile(position, velocity, entities, game, "Missile.png")
+{
+    m_launchTargetPos = position;
+	m_launchTargetPos.y -= 300.f;
+}
+
 void HomingMissile::update(double dt, GameMap& gameMap, Gun& gun)
 {
 	sf::Vector2f pos = m_sprite.getPosition();
@@ -173,37 +186,43 @@ void HomingMissile::update(double dt, GameMap& gameMap, Gun& gun)
 	direction.y /= norm;
 	pos.x += direction.x * m_velocity.x * dt;
 	pos.y += direction.y * m_velocity.x * dt;
+
+	if(m_velocity.x > 200.f) m_velocity.x -= dt;
+
 	m_sprite.setPosition(pos);
     m_sprite.setRotation(atan2(direction.y, direction.x) * 180.f / 3.14159265f);
-	if (gameMap.collide(m_sprite.getGlobalBounds()) or abs(gun.getSprite().getPosition().x - pos.x) > 600)
-		m_toDestroy = true;
-	for (auto& entity : m_entities)
-		if (collideWith(*entity) and !entity->isPlayer() and (m_toDestroy = true))
-			entity->onHit(m_velocity.x >= 0.f ? 1.f : -1.f);
+
+    if (std::abs(pos.x - m_launchTargetPos.x) < 5.f and std::abs(pos.y - m_launchTargetPos.y) < 5.f)
+		m_launchTargetPos = sf::Vector2f(0, 0);
+
+	checkCollision(pos, gameMap, gun, true);
 }
 
 sf::Vector2f HomingMissile::acquiresTargetPos()
 {
-   sf::Vector2f currentPos = m_sprite.getPosition();
-   sf::Vector2f closestPos;
-   float minDistance = std::numeric_limits<float>::max();
+    sf::Vector2f currentPos = m_sprite.getPosition();
+    sf::Vector2f closestPos;
+    float minDistance = std::numeric_limits<float>::max();
 
-   for (auto& entity : m_entities)
-   {
-       if (entity != nullptr && entity != m_entities[0])
-       {
-           sf::Vector2f entityPos = entity->getPos();
-           float distance = std::sqrt(std::pow(entityPos.x - currentPos.x, 2) + std::pow(entityPos.y - currentPos.y, 2));
+    for (auto& entity : m_entities)
+    {
+        if (entity != nullptr && entity != m_entities[0])
+        {
+            sf::Vector2f entityPos = entity->getPos();
+            float distance = std::sqrt(std::pow(entityPos.x - currentPos.x, 2) + std::pow(entityPos.y - currentPos.y, 2));
 
-           if (distance < minDistance)
-           {
-               minDistance = distance;
-               closestPos = entityPos;
-           }
-       }
-   }
-   if (closestPos == sf::Vector2f(0, 0))
-	   m_toDestroy = true;
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestPos = entityPos;
+            }
+        }
+    }
+    if (closestPos == sf::Vector2f(0, 0))
+        m_toDestroy = true;
 
-   return closestPos;
+	if (m_launchTargetPos != sf::Vector2f(0, 0))
+		return m_launchTargetPos;
+
+    return closestPos;
 }
