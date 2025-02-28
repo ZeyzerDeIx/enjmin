@@ -82,6 +82,7 @@ Gun::Gun(Entity* entity, sf::Vector2f offset, std::vector<Entity*>& entities, Ca
     m_muzzleFireSprite.setOrigin({0.f , m_muzzleFireSprite.getGlobalBounds().height / 2.f });
     m_muzzleFireSprite.setScale({ 0.1f,0.1f });
     m_laser.setFillColor(sf::Color::Red);
+	m_laser.setOrigin({ 0.f, m_laser.getGlobalBounds().height / 2.f });
 }
 
 Gun::~Gun()
