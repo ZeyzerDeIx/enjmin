@@ -103,6 +103,12 @@ void InputManager::processJoystick()
 	if (sf::Joystick::isButtonPressed(0, 0))
 		m_player->jump();
 
+	if (sf::Joystick::isButtonPressed(0, 1))
+		m_player->launchMissile();
+
+	if (sf::Joystick::isButtonPressed(0, 2))
+		m_player->triggerLaser();
+
 	if (m_rightTrigger and sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Z) >= -10)
 	{
 		m_rightTrigger = false;
